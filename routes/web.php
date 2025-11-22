@@ -61,6 +61,7 @@ Auth::routes();
 
 Route::middleware('isAdministrator')->group(function () {
     Route::get('/admin/dashboard', [App\Http\Controllers\Admin\DashboardAdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/datamaster', [App\Http\Controllers\Admin\DataMasterController::class, 'index'])->name('admin.datamaster');
     Route::get('/admin/jenis-hewan', [App\Http\Controllers\Admin\JenisHewanController::class, 'index'])->name('admin.jenis-hewan.index');
     Route::get('/admin/pemilik', [App\Http\Controllers\Admin\PemilikController::class, 'index'])->name('admin.pemilik.index');
 });
