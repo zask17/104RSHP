@@ -139,6 +139,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return response()->redirect('/')->with('Success', 'Logout berhasil!');
+        return redirect('/')->with('Success', 'Logout berhasil!');
     }
 }

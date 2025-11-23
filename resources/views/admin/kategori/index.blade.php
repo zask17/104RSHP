@@ -3,8 +3,8 @@
 @section('content')
 <div class="page-container">
     <div class="page-header">
-        <h1>Manajemen Data Pemilik</h1>
-        <p>Kelola data lengkap pemilik hewan peliharaan.</p>
+        <h1>Manajemen Kategori Hewan</h1>
+        <p>Kelola kategori umum untuk hewan peliharaan.</p>
     </div>
 
     <div class="main-content">
@@ -21,40 +21,34 @@
         @endif
 
         {{-- Button Tambah --}}
-        <a href="{{ route('admin.pemilik.create') }}" class="add-btn">
-            <i class="fas fa-user-plus"></i> Tambah Pemilik
+        <a href="{{ route('admin.kategori-hewan.create') }}" class="add-btn">
+            <i class="fas fa-plus"></i> Tambah Kategori
         </a>
 
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nama Pemilik</th>
-                    <th>Nomor HP</th>
-                    <th>Email</th>
-                    <th>Alamat</th>
+                    <th>NO</th>
+                    <th>Nama Kategori</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($pemilik as $item)
+                @forelse ($kategori as $index => $item)
                 <tr>
-                    <td>{{ $item->idpemilik }}</td>
-                    <td>{{ $item->nama_pemilik }}</td>
-                    <td>{{ $item->no_hp }}</td>
-                    <td>{{ $item->email ?? '-' }}</td>
-                    <td>{{ Str::limit($item->alamat, 50) }}</td>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $item->nama_kategori }}</td>
                     <td class="action-buttons">
                         {{-- Button Edit --}}
-                        <a href="{{ route('admin.pemilik.edit', $item->idpemilik) }}" class="edit-btn">
+                        <a href="{{ route('admin.kategori-hewan.edit', $item->idkategori) }}" class="edit-btn">
                             <i class="fas fa-edit"></i> Edit
                         </a>
 
                         {{-- Form Delete --}}
-                        <form action="{{ route('admin.pemilik.destroy', $item->idpemilik) }}" method="POST" style="display:inline-block;">
+                        <form action="{{ route('admin.kategori-hewan.destroy', $item->idkategori) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="delete-btn" onclick="return confirm('Apakah Anda yakin ingin menghapus data pemilik {{ $item->nama_pemilik }}? Tindakan ini tidak dapat dibatalkan.')">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Apakah Anda yakin ingin menghapus kategori {{ $item->nama_kategori }}? Tindakan ini tidak dapat dibatalkan jika masih ada relasi data.')">
                                 <i class="fas fa-trash"></i> Hapus
                             </button>
                         </form>
@@ -62,7 +56,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" style="text-align: center;">Tidak ada data pemilik yang terdaftar.</td>
+                    <td colspan="3" style="text-align: center;">Tidak ada data kategori hewan.</td>
                 </tr>
                 @endforelse
             </tbody>
