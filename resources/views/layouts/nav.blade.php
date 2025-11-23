@@ -4,7 +4,7 @@
             <img src="https://i.ibb.co.com/Fkk0N5PL/LOGO-UNAIR.png" alt="LOGO-UNAIR" class="logo">
         </a>
 
-        <a href="https://ibb.co.com/r9FZgtH">
+        <a href="{{ url('/') }}" class="@if(request()->is('home')) @endif">
             <img src="https://i.ibb.co.com/5ZG5d9L/rshp.png" alt="Logo RSHP" class="logo">
         </a>
     </div>
@@ -63,7 +63,7 @@
 
 
         @else
-            {{-- Tampilan setelah Login --}}
+            {{-- Sudah Login --}}
             <li class="dropdown-kustom">
                 <a id="navbarDropdown" href="#" onclick="return false;" class="dropdown-toggle-kustom">
                     {{ ucwords(Auth::user()->nama) }} <span class="underline"></span>
@@ -71,12 +71,32 @@
 
                 <div class="dropdown-menu-kustom" aria-labelledby="navbarDropdown">
 
-                    <a class="dropdown-item-kustom" href="{{ route('home') }}">Dashboard</a>
+                    {{-- Dashboard Berdasarkan Role --}}
+                    @if(Auth::user()->role === 'admin')
+                        <a class="dropdown-item-kustom" href="{{ route('admin.dashboard') }}">
+                            Dashboard Admin
+                        </a>
+
+                    {{-- @elseif(Auth::user()->role === 'dokter')
+                        <a class="dropdown-item-kustom" href="{{ route('dokter.dashboard') }}">
+                            Dashboard Dokter
+                        </a> --}}
+
+                    @elseif(Auth::user()->role === 'perawat')
+                        <a class="dropdown-item-kustom" href="{{ route('perawat.dashboard') }}">
+                            Dashboard Perawat
+                        </a>
+
+                    @elseif(Auth::user()->role === 'resepsionis')
+                        <a class="dropdown-item-kustom" href="{{ route('resepsionis.dashboard') }}">
+                            Dashboard Resepsionis
+                        </a>
+                    @endif
 
                     {{-- Logout --}}
                     <a class="dropdown-item-kustom" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                                     document.getElementById('logout-form').submit();">
-                        {{ __('Logout') }}
+                            document.getElementById('logout-form').submit();">
+                        Logout
                     </a>
 
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

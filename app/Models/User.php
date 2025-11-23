@@ -2,47 +2,39 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-
-use App\Models\RoleUser;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
+use App\Models\Pemilik;
+use App\Models\Dokter;
+use App\Models\Perawat;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
-    // /**
-    //  * The attributes that are mass assignable.
-    //  *
-    //  * @var array<int, string>
-    //  */
-    // protected $fillable = [
-    //     'name',
-    //     'email',
-    //     'password',
-    // ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    use HasFactory, Notifiable;
+    
     protected $table = 'user';
     protected $primaryKey = 'iduser';
+    public $timestamps = false;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'nama',
+        'name',
         'email',
         'password',
+        'idrole', 
     ];
-
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -50,51 +42,60 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Mutator to hash the password only if it needs rehashing.
      */
-    protected function casts(): array
+    public function setPasswordAttribute($password)
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        if ($password) {
+            // Check if the input is already a hashed password (e.g., if re-setting without change)
+            // or if it's new plain text that needs hashing.
+            $this->attributes['password'] = Hash::needsRehash($password) ? Hash::make($password) : $password;
+        }
     }
 
+    /**
+     * Relasi belongsTo untuk Role (One-to-One / Foreign Key on User table)
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'idrole', 'idrole');
+    }
 
+    /**
+     * The roles that belong to the user. (Relasi Many-to-Many Anda yang lama)
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole')
+                    ->withPivot('status');
+    }
+
+    /**
+     * Get the Pemilik (Owner) associated with the user.
+     * Uses 'iduser' as the foreign key in the Pemilik table.
+     */
     public function pemilik()
     {
         return $this->hasOne(Pemilik::class, 'iduser', 'iduser');
     }
 
-    public function roleUser()
+    /**
+     * Relasi One-to-One: User has one Dokter.
+     * Corrected foreign key from 'id' to 'iduser' for consistency.
+     */
+    public function dokter()
     {
-        // Pastikan nama model yang benar adalah RoleUser
-        return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
+        // Assuming the foreign key in the Dokter table is 'id_user' and the local key is 'iduser'
+        return $this->hasOne(Dokter::class, 'id_user', 'iduser');
     }
-    //     /**
-    //      * Mendapatkan Role aktif dari user saat ini.
-    //      * Ini mereplikasi logika 'status = 1' di login_post.php
-    //      *
-    //      * @return \App\Models\Role|null
-    //      */
-    //     public function activeRole()
-    //     {
-    //         return $this->roles()
-    //                     ->wherePivot('status', 1)
-    //                     ->first();
-    //     }
 
-
-    //     public function role()
-    //     {
-    //         return $this->hasOne(Role::class, 'iduser', 'iduser')
-    //                     ->where('status', 1);
-    //     }
-
-    //     public function isAdministrator()
-    //     {
-    //         return $this->role()->first()->role->nama_role === 'Administrator';
-    //     }
+    /**
+     * Relasi One-to-One: User has one Perawat (Nurse).
+     * Corrected foreign key from 'id' to 'iduser' for consistency.
+     */
+    public function perawat()
+    {
+        // Assuming the foreign key in the Perawat table is 'id_user' and the local key is 'iduser'
+        return $this->hasOne(Perawat::class, 'id_user', 'iduser');
+    }
 }

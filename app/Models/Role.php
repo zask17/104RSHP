@@ -15,10 +15,10 @@ class Role extends Model
     protected $primaryKey = 'idrole'; 
     protected $fillable = ['idrole', 'nama_role'];
     
-    // Relasi many-to-many ke User melalui tabel pivot RoleUser
+
     public function users()
     {
-        // Perbaikan: Tentukan nama tabel pivot yang benar: 'role_user'
-        return $this->belongsToMany(User::class, 'role_user', 'idrole', 'iduser');
+        return $this->belongsToMany(User::class, 'role_user', 'idrole', 'iduser')
+        ->withPivot('status');
     }
 }
