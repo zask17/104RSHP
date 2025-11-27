@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class roleUser extends Model
+class RoleUser extends Model
 {
     use HasFactory;
     protected $table = 'role_user'; 
@@ -17,8 +17,8 @@ class roleUser extends Model
         return $this->belongsTo(Role::class, 'idrole', 'idrole');
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'iduser', 'iduser');
-    }
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class, 'iduser', 'iduser');
+    // }
 }

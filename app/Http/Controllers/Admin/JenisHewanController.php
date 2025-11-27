@@ -25,9 +25,9 @@ class JenisHewanController extends Controller
         return view('admin.jenis-hewan.create.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request) //Digunakan untuk MENYIMPAN DATA
     {
-        // Panggil validasi tanpa ID (untuk operasi buat baru)
+        // Validasi input tanpa ID (untuk operasi buat baru)
         $validatedData = $this->validateJenisHewan($request); 
         
         // Panggil helper untuk membuat data baru (menggunakan helper Anda)

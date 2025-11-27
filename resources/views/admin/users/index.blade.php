@@ -31,21 +31,20 @@
                     <th>ID</th>
                     <th>Nama</th>
                     <th>Email</th>
-                    <th>Role</th>
+                    {{-- <th>Role</th> --}}
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($users as $user)
                 <tr>
-                    {{-- Diperbaiki: Menggunakan iduser sebagai primary key --}}
+                    {{-- Menggunakan iduser sebagai primary key --}}
                     <td>{{ $user->iduser }}</td> 
                     
-                    {{-- Diperbaiki: Menggunakan name sebagai nama field --}}
-                    <td>{{ $user->name }}</td> 
-                    
+                    {{-- Menggunakan nama sebagai nama field --}}
+                    <td>{{ $user->nama }}</td> 
                     <td>{{ $user->email }}</td>
-                    <td>{{ $user->role->nama_role ?? 'N/A' }}</td>
+                    {{-- <td>{{ $user->RoleUser->nama_role ?? 'N/A' }}</td> --}}
                     <td class="action-buttons">
                         
                         {{-- Diperbaiki: Menggunakan $user->iduser sebagai parameter rute --}}

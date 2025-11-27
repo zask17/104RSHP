@@ -14,7 +14,7 @@ use App\Models\Perawat;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
-    
+
     protected $table = 'user';
     protected $primaryKey = 'iduser';
     public $timestamps = false;
@@ -28,7 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'idrole', 
+        'idrole',
     ];
 
     /**
@@ -67,7 +67,13 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole')
-                    ->withPivot('status');
+            ->withPivot('status');
+    }
+
+    public function roleUser()
+    {
+        // Relasi ke tabel perantara role_user
+        return $this->hasOne(RoleUser::class, 'iduser', 'iduser');
     }
 
     /**

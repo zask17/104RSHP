@@ -53,7 +53,7 @@
                 </tr>
                 <tr>
                     <td>Minggu</td>
-                    <td colspan="2" class="full-igd">
+                    <td colspan="2" class="full-igd" style="text-align:center">
                         🚨 FULL IGD 🚨
                     </td>
                 </tr>
