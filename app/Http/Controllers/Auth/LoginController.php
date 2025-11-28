@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\RoleUser;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -111,7 +112,7 @@ class LoginController extends Controller
     // 5. Logika redirect berdasarkan Role ID
     $userRole = $activeRole->idrole ?? null;
 
-    switch ($userRole) {
+    switch ($userRole = $activeRole->idrole ?? null) {
         case '1': // Administrator
             return redirect()->route('admin.dashboard')->with('success', 'Login berhasil!');
         case '2': // Dokter

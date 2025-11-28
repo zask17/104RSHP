@@ -12,13 +12,21 @@ class RasHewanController extends Controller
 {
     public function index ()
     {
-        // Mengambil semua RasHewan beserta JenisHewan terkait untuk tampilan tabel
-        $rasHewan = RasHewan::with('jenis')->orderBy('idjenis_hewan')->get();
+        // Mengambil semua RasHewan beserta JenisHewan terkait
+        // Mengurutkan ras berdasarkan nama ras
+        // Mengelompokkan hasil berdasarkan nama jenis hewan
+        $groupedRasHewan = RasHewan::with('jenis')
+            ->get()
+            // Group by menggunakan nama jenis hewan
+            ->groupBy('jenis.nama_jenis_hewan'); 
         
-        // Cek jika rute bermasalah, jika tidak maka hanya kirim $rasHewan
-        return view('admin.ras-hewan.index', compact('rasHewan'));
+        // Mengirim data yang sudah dikelompokkan ke view
+        return view('admin.ras-hewan.index', [
+            'groupedRasHewan' => $groupedRasHewan,
+        ]);
     }
-
+    
+    // ... (fungsi create, store, edit, update, destroy, dan validateRasHewan tetap sama)
     public function create()
     {
         // Mengambil semua jenis hewan untuk ditampilkan di dropdown

@@ -36,63 +36,71 @@
         </li>
 
         @guest
-            {{-- Tampilkan Login jika belum login --}}
+            {{-- Login jika belum login --}}
             <li>
                 <a href="{{ route('login') }}" class="@if(request()->is('login')) active @endif">
                     Login <span class="underline"></span>
                 </a>
             </li>
+            // nav.blade.php
+
+            // ... kode sebelumnya ...
+
         @else
             {{-- Jika sudah Login, tampilkan Dashboard dan Logout sebagai menu horizontal --}}
-            
-            {{-- 1. Tombol Dashboard Berdasarkan Role --}}
+
+            {{-- Tombol Dashboard Berdasarkan Role --}}
             @php
-                // Tentukan rute dan nama dashboard berdasarkan role
                 $dashboardRoute = '';
                 $dashboardName = '';
 
-                switch (Auth::user()->role) {
-                    case 'admin':
+                // **PERBAIKAN**: Ambil Role ID aktif dari session yang sudah disimpan di LoginController.
+                // Session key 'user_role' berisi Role ID (1, 2, 3, 4, dst.)
+                $userRole = (string) session('user_role');
+
+                switch ($userRole) {
+                    case '1': // Administrator
                         $dashboardRoute = route('admin.dashboard');
                         $dashboardName = 'Dashboard Admin';
                         break;
-                    case 'dokter':
+                    case '2': // Dokter
                         $dashboardRoute = route('dokter.dashboard');
                         $dashboardName = 'Dashboard Dokter';
                         break;
-                    case 'perawat':
+                    case '3': // Perawat
                         $dashboardRoute = route('perawat.dashboard');
                         $dashboardName = 'Dashboard Perawat';
                         break;
-                    case 'resepsionis':
+                    case '4': // Resepsionis
                         $dashboardRoute = route('resepsionis.dashboard');
                         $dashboardName = 'Dashboard Resepsionis';
                         break;
-                    default:
-                        $dashboardRoute = route('home'); // Rute default jika role tidak terdefinisi
-                        $dashboardName = 'Dashboard';
+                    default: // Pemilik atau Role lain yang tidak spesifik
+                        // Mengikuti logika default di LoginController yang mengarahkan ke pemilik.dashboard
+                        $dashboardRoute = route('pemilik.dashboard');
+                        $dashboardName = 'Dashboard Pemilik';
                         break;
                 }
             @endphp
-            
+
             <li>
                 <a href="{{ $dashboardRoute }}" class="@if(request()->is('*dashboard*')) active @endif">
                     {{ $dashboardName }} <span class="underline"></span>
                 </a>
             </li>
 
-            {{-- 2. Tombol Logout --}}
+            {{-- Logout --}}
             <li>
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <a href="{{ route('logout') }}"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     Logout <span class="underline"></span>
                 </a>
             </li>
-            
-            {{-- Form Logout harus tetap ada --}}
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
-
         @endguest
+
+        // ... kode selanjutnya ...
     </ul>
 </nav>
