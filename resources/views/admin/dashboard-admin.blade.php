@@ -79,7 +79,7 @@
                     <p>Kelola kategori untuk keperluan klinis.</p>
                 </a>
                 <a href="{{ route('admin.kode-tindakan-terapi.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-notes-medical"></i> Kode Tindakan</h3>
+                    <h3><i class="fas fa-notes-medical"></i> Kode Tindakan & Terapi</h3>
                     <p>Kelola kode untuk tindakan dan terapi.</p>
                 </a>
             </div>
