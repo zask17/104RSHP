@@ -16,7 +16,7 @@ class KodeTindakanTerapi extends Model
     public $timestamps = false;
 
     // Fillable fields
-    protected $fillable = ['kode', 'deskripsi', 'idkategori', 'idkategori_klinis'];
+    protected $fillable = ['kode', 'deskripsi_tindakan_terapi', 'idkategori', 'idkategori_klinis'];
 
     /**
      * Get the kategori (category) that owns the tindakan terapi.

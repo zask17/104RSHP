@@ -42,9 +42,7 @@
                     Login <span class="underline"></span>
                 </a>
             </li>
-            // nav.blade.php
-
-            // ... kode sebelumnya ...
+            
 
         @else
             {{-- Jika sudah Login, tampilkan Dashboard dan Logout sebagai menu horizontal --}}
@@ -101,6 +99,5 @@
             </form>
         @endguest
 
-        // ... kode selanjutnya ...
     </ul>
 </nav>

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Role;
+use App\Models\RoleUser;
 use App\Models\Pemilik;
 use App\Models\Dokter;
 use App\Models\Perawat;
@@ -25,7 +26,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'nama',
         'email',
         'password',
         'idrole',
@@ -47,8 +48,6 @@ class User extends Authenticatable
     public function setPasswordAttribute($password)
     {
         if ($password) {
-            // Check if the input is already a hashed password (e.g., if re-setting without change)
-            // or if it's new plain text that needs hashing.
             $this->attributes['password'] = Hash::needsRehash($password) ? Hash::make($password) : $password;
         }
     }
@@ -56,7 +55,7 @@ class User extends Authenticatable
     /**
      * Relasi belongsTo untuk Role (One-to-One / Foreign Key on User table)
      */
-    public function role()
+    public function role() // MENGAKTIFKAN RELASI INI
     {
         return $this->belongsTo(Role::class, 'idrole', 'idrole');
     }
@@ -73,7 +72,8 @@ class User extends Authenticatable
     public function roleUser()
     {
         // Relasi ke tabel perantara role_user
-        return $this->hasOne(RoleUser::class, 'iduser', 'iduser');
+        return $this->hasOne(RoleUser::class, 'iduser', 'iduser')
+            ->where('status', 1);
     }
 
     /**

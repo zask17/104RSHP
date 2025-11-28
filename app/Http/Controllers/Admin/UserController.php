@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Mod\App\Models\RoleUser;
 use App\Models\Role;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,7 @@ class UserController extends Controller
 
     public function index()
     {
+        // Eager load relasi 'role' (yang belongsTo)
         $users = User::with('role')->get(); 
         return view('admin.users.index', compact('users'));
     }
@@ -47,8 +49,8 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        // Validasi dengan ID user (update mode)
-        $validatedData = $this->validateUser($request, $user->id); 
+        // Catatan: Menggunakan $user->id untuk Rule::unique, pastikan konsisten dengan primary key 'iduser'
+        $validatedData = $this->validateUser($request, $user->iduser); 
 
         // Hanya update password jika diisi
         if (isset($validatedData['password']) && !empty($validatedData['password'])) {
@@ -68,7 +70,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // Pencegahan penghapusan diri sendiri
-        if (auth()->id() == $user->id) {
+        if (auth()->id() == $user->iduser) {
             return redirect()->route('admin.users.index')
                              ->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
@@ -86,22 +88,21 @@ class UserController extends Controller
     private function validateUser(Request $request, $id = null)
     {
         $rules = [
-            'name' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
             'email' => [
                 'required',
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users')->ignore($id), // Mengabaikan ID user saat update
+                Rule::unique('user', 'email')->ignore($id, 'iduser'), // Menggunakan tabel 'user' dan primary key 'iduser'
             ],
-            // Asumsi tabel role memiliki primary key idrole
+            
             'idrole' => 'required|exists:role,idrole', 
-            // Password: required saat create ($id=null), nullable saat update ($id!=null)
             'password' => [
                 $id ? 'nullable' : 'required',
                 'string',
                 'min:8',
-                'confirmed', // Memastikan ada field password_confirmation
+                'confirmed',
             ],
         ];
         $messages = [
@@ -110,7 +111,6 @@ class UserController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'password.min' => 'Password minimal 8 karakter.',
             'email.unique' => 'Email sudah terdaftar.',
-            // ... pesan-pesan lainnya
         ];
 
         return $request->validate($rules, $messages);
