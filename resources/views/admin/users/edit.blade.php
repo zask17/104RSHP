@@ -1,18 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah User Baru')
+@section('title', 'Edit User')
 
 @section('content')
 <div class="page-container">
     <div class="form-container">
-        <h1>Tambah User Baru</h1>
+        <h1>Edit User: {{ $user->name }}</h1>
         
         <a href="{{ route('admin.users.index') }}" class="back-link">
             <i class="fas fa-arrow-left"></i> Kembali ke Daftar User
         </a>
 
-        <form action="{{ route('admin.users.store') }}" method="POST">
+        <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
             @csrf
+            @method('PUT') {{-- Gunakan metode PUT untuk update --}}
 
             {{-- Nama --}}
             <div class="form-group">
@@ -21,7 +22,7 @@
                     type="text"
                     id="name"
                     name="name"
-                    value="{{ old('name') }}"
+                    value="{{ old('name', $user->name) }}"
                     placeholder="Masukkan nama lengkap"
                     required
                 >
@@ -37,7 +38,7 @@
                     type="email"
                     id="email"
                     name="email"
-                    value="{{ old('email') }}"
+                    value="{{ old('email', $user->email) }}"
                     placeholder="Masukkan alamat email"
                     required
                 >
@@ -52,7 +53,10 @@
                 <select id="idrole" name="idrole" required>
                     <option value="">Pilih Role</option>
                     @foreach ($roles as $role)
-                        <option value="{{ $role->idrole }}" {{ old('idrole') == $role->idrole ? 'selected' : '' }}>
+                        <option 
+                            value="{{ $role->idrole }}" 
+                            {{ old('idrole', $user->idrole) == $role->idrole ? 'selected' : '' }}
+                        >
                             {{ $role->nama_role }}
                         </option>
                     @endforeach
@@ -62,15 +66,19 @@
                 @enderror
             </div>
             
+            <div class="info-box">
+                <h3>Ubah Password</h3>
+                <p>Kosongkan field di bawah jika Anda tidak ingin mengganti password user ini.</p>
+            </div>
+
             {{-- Password --}}
             <div class="form-group">
-                <label for="password">Password <span class="text-danger">*</span></label>
+                <label for="password">Password Baru</label>
                 <input
                     type="password"
                     id="password"
                     name="password"
                     placeholder="Minimal 8 karakter"
-                    required
                 >
                 @error('password')
                     <div class="alert alert-danger">{{ $message }}</div>
@@ -79,18 +87,17 @@
 
             {{-- Konfirmasi Password --}}
             <div class="form-group">
-                <label for="password_confirmation">Konfirmasi Password <span class="text-danger">*</span></label>
+                <label for="password_confirmation">Konfirmasi Password Baru</label>
                 <input
                     type="password"
                     id="password_confirmation"
                     name="password_confirmation"
-                    placeholder="Ulangi password"
-                    required
+                    placeholder="Ulangi password baru"
                 >
             </div>
 
             <button type="submit" class="btn-submit">
-                <i class="fas fa-save"></i> Simpan User
+                <i class="fas fa-save"></i> Perbarui User
             </button>
         </form>
     </div>

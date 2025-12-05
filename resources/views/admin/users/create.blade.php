@@ -1,66 +1,98 @@
 @extends('layouts.app')
 
+@section('title', 'Tambah User Baru')
+
 @section('content')
 <div class="page-container">
-    <div class="page-header">
-        <h1>Manajemen Role (Jabatan)</h1>
-        <p>Kelola daftar role pengguna yang terdaftar di sistem.</p>
-    </div>
-
-    <div class="main-content">
-        @if (session('success'))
-            <div class="alert alert-success" role="alert">
-                {{ session('success') }}
-            </div>
-        @endif
+    <div class="form-container">
+        <h1>Tambah User Baru</h1>
         
-        @if (session('error'))
-            <div class="alert alert-danger" role="alert">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        {{-- Button Tambah --}}
-        <a href="{{ route('admin.roles.create') }}" class="add-btn">
-            <i class="fas fa-plus"></i> Tambah Role Baru
+        <a href="{{ route('admin.users.index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Kembali ke Daftar User
         </a>
 
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nama Role</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($roles as $item)
-                <tr>
-                    <td>{{ $item->idrole }}</td>
-                    <td>{{ $item->nama_role }}</td>
-                    <td class="action-buttons">
-                        {{-- Button Edit --}}
-                        <a href="{{ route('admin.roles.edit', $item->idrole) }}" class="edit-btn">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
+        <form action="{{ route('admin.users.store') }}" method="POST">
+            @csrf
 
-                        {{-- Form Delete --}}
-                        <form action="{{ route('admin.roles.destroy', $item->idrole) }}" method="POST" style="display:inline-block;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="delete-btn" onclick="return confirm('Apakah Anda yakin ingin menghapus role {{ $item->nama_role }}? Tindakan ini tidak dapat dibatalkan jika masih ada user terkait.')">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="3" style="text-align: center;">Tidak ada data role yang terdaftar.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+            {{-- Nama --}}
+            <div class="form-group">
+                <label for="name">Nama Lengkap <span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="{{ old('name') }}"
+                    placeholder="Masukkan nama lengkap"
+                    required
+                >
+                @error('name')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Email --}}
+            <div class="form-group">
+                <label for="email">Email <span class="text-danger">*</span></label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    placeholder="Masukkan alamat email"
+                    required
+                >
+                @error('email')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Role --}}
+            <div class="form-group">
+                <label for="idrole">Role/Jabatan <span class="text-danger">*</span></label>
+                <select id="idrole" name="idrole" required>
+                    <option value="">Pilih Role</option>
+                    @foreach ($roles as $role)
+                        <option value="{{ $role->idrole }}" {{ old('idrole') == $role->idrole ? 'selected' : '' }}>
+                            {{ $role->nama_role }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('idrole')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                @enderror
+            </div>
+            
+            {{-- Password --}}
+            <div class="form-group">
+                <label for="password">Password <span class="text-danger">*</span></label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Minimal 8 karakter"
+                    required
+                >
+                @error('password')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Konfirmasi Password --}}
+            <div class="form-group">
+                <label for="password_confirmation">Konfirmasi Password <span class="text-danger">*</span></label>
+                <input
+                    type="password"
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    placeholder="Ulangi password"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> Simpan User
+            </button>
+        </form>
     </div>
 </div>
 @endsection

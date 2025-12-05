@@ -22,7 +22,7 @@ class JenisHewanController extends Controller
     public function create()
     {
         // Path view diperbaiki (dihapus duplikasi 'create/')
-        return view('admin.jenis-hewan.create.create');
+        return view('admin.jenis-hewan.create');
     }
 
     public function store(Request $request) //Digunakan untuk MENYIMPAN DATA
@@ -40,7 +40,7 @@ class JenisHewanController extends Controller
     public function edit(JenisHewan $jenisHewan)
     {
         // Path view diperbaiki untuk menunjuk ke 'edit/edit.blade.php'
-        return view('admin.jenis-hewan.edit.edit', compact('jenisHewan'));
+        return view('admin.jenis-hewan.edit', compact('jenisHewan'));
     }
 
     public function update(Request $request, JenisHewan $jenisHewan)
