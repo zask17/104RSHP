@@ -25,6 +25,7 @@ class PemilikController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi sekarang mencakup password jika ini adalah operasi store
         $validatedData = $this->validatePemilik($request);
 
         try {
@@ -32,7 +33,8 @@ class PemilikController extends Controller
             $user = User::create([
                 'nama' => $validatedData['nama_pemilik'],
                 'email' => $validatedData['email'] ?? null,
-                'password' => bcrypt('password123'), // Password default
+                // Menggunakan password dari input user, bukan password default
+                'password' => bcrypt($validatedData['password']), 
             ]);
 
             // 2. Buat data pemilik dengan iduser dari user yang baru dibuat
@@ -52,7 +54,7 @@ class PemilikController extends Controller
             ]);
 
             return redirect()->route('admin.pemilik.index')
-                             ->with('success', 'Data pemilik berhasil ditambahkan. User account telah dibuat dengan password default: password123');
+                             ->with('success', 'Data pemilik berhasil ditambahkan dan user account telah dibuat.');
         } catch (\Exception $e) {
             return redirect()->route('admin.pemilik.index')
                              ->with('error', 'Gagal menambahkan data pemilik: ' . $e->getMessage());
@@ -121,7 +123,7 @@ class PemilikController extends Controller
 
     private function validatePemilik(Request $request, $id = null)
     {
-        return $request->validate([
+        $rules = [
             'nama_pemilik' => 'required|string|max:255|min:3',
             'alamat' => 'required|string|max:500',
             'no_wa' => [
@@ -134,17 +136,28 @@ class PemilikController extends Controller
                 'nullable',
                 'email',
                 'max:255',
-                Rule::unique('pemilik', 'email')->ignore($id, 'idpemilik'),
+                // Rule::unique('pemilik', 'email') tidak mencukupi, perlu ditambahkan rule unique untuk tabel user jika diperlukan validasi yang lebih ketat.
+                Rule::unique('pemilik', 'email')->ignore($id, 'idpemilik'), 
             ],
             'iduser' => 'nullable|integer|exists:users,iduser',
-        ], [
+        ];
+
+        $messages = [
             'nama_pemilik.required' => 'Nama pemilik tidak boleh kosong.',
             'alamat.required' => 'Alamat tidak boleh kosong.',
             'no_wa.required' => 'Nomor HP tidak boleh kosong.',
             'no_wa.unique' => 'Nomor HP sudah terdaftar.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar.',
-        ]);
+        ];
+
+        // Tambahkan aturan validasi password hanya untuk operasi store (ketika $id = null)
+        if ($id === null) {
+            $rules['password'] = 'required|string|min:6';
+            $messages['password.required'] = 'Password tidak boleh kosong.';
+            $messages['password.min'] = 'Password minimal 6 karakter.';
+        }
+
+        return $request->validate($rules, $messages);
     }
 }
-

@@ -60,6 +60,21 @@
                     <div class="alert alert-danger">{{ $message }}</div>
                 @enderror
             </div>
+            
+            {{-- Password BARU DITAMBAHKAN --}}
+            <div class="form-group">
+                <label for="password">Password <span class="text-danger">*</span></label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Masukkan password untuk login (min. 6 karakter)"
+                    required
+                >
+                @error('password')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                @enderror
+            </div>
 
             {{-- Alamat --}}
             <div class="form-group">
