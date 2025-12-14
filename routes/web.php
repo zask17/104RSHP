@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\UserController;
@@ -69,7 +70,7 @@ Route::middleware('isAdministrator')->group(function () {
     Route::get('/jenis-hewan/{jenisHewan}/edit', [JenisHewanController::class, 'edit'])->name('admin.jenis-hewan.edit');
     Route::put('/jenis-hewan/{jenisHewan}', [JenisHewanController::class, 'update'])->name('admin.jenis-hewan.update');
     Route::delete('/jenis-hewan/{jenisHewan}', [JenisHewanController::class, 'destroy'])->name('addmin.jenis-hewan.destroy');
-    Route::resource('jenis-hewan', JenisHewanController::class) 
+    Route::resource('jenis-hewan', JenisHewanController::class)
         ->except(['show'])
         ->parameters([
             'jenis-hewan' => 'jenisHewan'
@@ -77,7 +78,9 @@ Route::middleware('isAdministrator')->group(function () {
 
     //RAS HEWAN
     Route::get('/ras-hewan.index', [RasHewanController::class, 'index'])->name('admin.ras-hewan.index');
-    Route::get('/ras-hewan/create', [RasHewanController::class, 'create'])->name('admin.ras-hewan.create');
+    // Tambahkan Resource Route untuk Ras Hewan
+    Route::resource('ras-hewan', RasHewanController::class)->except(['create']);
+    // Route::get('/ras-hewan/create', [RasHewanController::class, 'create'])->name('admin.ras-hewan.create');
     Route::post('/ras-hewan', [RasHewanController::class, 'store'])->name('admin.ras-hewan.store');
     Route::get('/ras-hewan/{rasHewan}/edit', [RasHewanController::class, 'edit'])->name('admin.ras-hewan.edit');
     Route::put('/ras-hewan/{rasHewan}', [RasHewanController::class, 'update'])->name('admin.ras-hewan.update');
@@ -87,7 +90,7 @@ Route::middleware('isAdministrator')->group(function () {
         ->parameters([
             'ras-hewan' => 'rasHewan'
         ])->names('admin.ras-hewan');
-        
+
     // KATEGORI
     Route::get('/kategori', [KategoriController::class, 'index'])->name('admin.kategori.index');
     Route::get('/kategori/create', [KategoriController::class, 'create'])->name('admin.kategori.create');
@@ -99,7 +102,7 @@ Route::middleware('isAdministrator')->group(function () {
         ->except(['show'])
         ->parameters([
             'kategori' => 'kategori'
-    ])->names('admin.kategori');;
+        ])->names('admin.kategori');;
 
     // KATEGORI KLINIS
     Route::get('/kategori-klinis', [KategoriKlinisController::class, 'index'])->name('admin.kategori_klinis.index');
@@ -110,8 +113,8 @@ Route::middleware('isAdministrator')->group(function () {
     Route::resource('kategori-klinis', KategoriKlinisController::class)
         ->except(['show'])
         ->parameters([
-            'kategori-klinis' => 'kategoriKlinis' 
-    ])->names('admin.kategori-klinis');;
+            'kategori-klinis' => 'kategoriKlinis'
+        ])->names('admin.kategori-klinis');;
 
     // PEMILIK
     Route::get('/pemilik', [AdminPemilikController::class, 'index'])->name('admin.pemilik.index');
@@ -120,10 +123,10 @@ Route::middleware('isAdministrator')->group(function () {
     Route::get('/pemilik/{pemilik}/edit', [AdminPemilikController::class, 'edit'])->name('admin.pemilik.edit');
     Route::put('/pemilik/{pemilik}', [AdminPemilikController::class, 'update'])->name('admin.pemilik.update');
     Route::resource('pemilik', AdminPemilikController::class)
-    ->except(['show'])
-    ->parameters([
-        'pemilik' => 'pemilik' 
-    ])->names('admin.pemilik');
+        ->except(['show'])
+        ->parameters([
+            'pemilik' => 'pemilik'
+        ])->names('admin.pemilik');
 
     // KODE TINDAKAN TERAPI
     Route::get('/kode-tindakan-terapi', [KodeTindakanTerapiController::class, 'index'])->name('admin.kode_tindakan_terapi.index');
@@ -132,10 +135,10 @@ Route::middleware('isAdministrator')->group(function () {
     Route::get('/kode-tindakan-terapi/{kodeTindakanTerapi}/edit', [KodeTindakanTerapiController::class, 'edit'])->name('admin.kode-tindakan-terapi.edit');
     Route::put('/kode-tindakan-terapi/{kodeTindakanTerapi}', [KodeTindakanTerapiController::class, 'update'])->name('admin.kode-tindakan-terapi.update');
     Route::resource('kode-tindakan-terapi', KodeTindakanTerapiController::class)
-    ->except(['show'])
-    ->parameters([
-        'kode-tindakan-terapi' => 'kodeTindakanTerapi' 
-    ])->names('admin.kode-tindakan-terapi');
+        ->except(['show'])
+        ->parameters([
+            'kode-tindakan-terapi' => 'kodeTindakanTerapi'
+        ])->names('admin.kode-tindakan-terapi');
 
     // USER MANAGEMENT
     Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
@@ -144,10 +147,10 @@ Route::middleware('isAdministrator')->group(function () {
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::resource('users', UserController::class)
-    ->except(['show'])
-    ->parameters([
-        'users' => 'user' 
-    ])->names('admin.users');
+        ->except(['show'])
+        ->parameters([
+            'users' => 'user'
+        ])->names('admin.users');
 
     // ROLE MANAGEMENT
     Route::get('/roles', [RoleController::class, 'index'])->name('admin.roles.index');
@@ -156,18 +159,18 @@ Route::middleware('isAdministrator')->group(function () {
     Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])->name('admin.roles.edit');
     Route::put('/roles/{role}', [RoleController::class, 'update'])->name('admin.roles.update');
     Route::resource('roles', RoleController::class)
-    ->except(['show'])
-    ->parameters([
-        'roles' => 'role' // Model binding name
-    ])->names('admin.roles');
+        ->except(['show'])
+        ->parameters([
+            'roles' => 'role' // Model binding name
+        ])->names('admin.roles');
 
     // PETS (PASIEN)
     Route::get('/pets', [PetController::class, 'index'])->name('admin.pets.index');
     Route::resource('pets', PetController::class)
-    ->except(['show'])
-    ->parameters([
-        'pets' => 'pet' // Model binding name
-    ])->names('admin.pets');;
+        ->except(['show'])
+        ->parameters([
+            'pets' => 'pet' // Model binding name
+        ])->names('admin.pets');;
 });
 
 //akses Dokter

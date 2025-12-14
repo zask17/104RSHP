@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class RasHewan extends Model
 {
-    // use HasFactory;
-
+    // use HasFactory; // Diberi komentar di file Anda, saya biarkan
+    
     protected $table = 'ras_hewan';
     protected $primaryKey = 'idras_hewan';
     public $timestamps = false;
@@ -17,6 +17,7 @@ class RasHewan extends Model
 
     public function jenis()
     {
+        // Pastikan Anda memiliki Model JenisHewan.php
         return $this->belongsTo(JenisHewan::class, 'idjenis_hewan', 'idjenis_hewan');
     }
 

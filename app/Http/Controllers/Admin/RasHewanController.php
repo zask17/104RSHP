@@ -5,35 +5,36 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\RasHewan;
-use App\Models\JenisHewan; 
+use App\Models\JenisHewan; // Digunakan untuk mengambil data induk
 use Illuminate\Validation\Rule;
+use Illuminate\Database\QueryException;
 
 class RasHewanController extends Controller
 {
+    /**
+     * Menampilkan daftar semua Jenis Hewan, beserta Ras yang terkait (termasuk yang kosong).
+     */
     public function index ()
     {
-        // Mengambil semua RasHewan beserta JenisHewan terkait
-        // Mengurutkan ras berdasarkan nama ras
-        // Mengelompokkan hasil berdasarkan nama jenis hewan
-        $groupedRasHewan = RasHewan::with('jenis')
-            ->get()
-            // Group by menggunakan nama jenis hewan
-            ->groupBy('jenis.nama_jenis_hewan'); 
-        
-        // Mengirim data yang sudah dikelompokkan ke view
+        // Ambil SEMUA JenisHewan dan eager load RasHewan (ras) mereka.
+        $jenisHewanWithRas = JenisHewan::with(['ras' => function ($query) {
+            // Urutkan ras berdasarkan nama ras saat dimuat
+            $query->orderBy('nama_ras');
+        }])
+        ->orderBy('nama_jenis_hewan')
+        ->get(); 
+
+        // Mengirim data yang sudah di-load ke view
         return view('admin.ras-hewan.index', [
-            'groupedRasHewan' => $groupedRasHewan,
+            'jenisHewanWithRas' => $jenisHewanWithRas,
         ]);
     }
     
-    // ... (fungsi create, store, edit, update, destroy, dan validateRasHewan tetap sama)
-    public function create()
-    {
-        // Mengambil semua jenis hewan untuk ditampilkan di dropdown
-        $jenisHewan = JenisHewan::orderBy('nama_jenis_hewan')->get();
-        return view('admin.ras-hewan.create', compact('jenisHewan'));
-    }
+    // Metode CREATE DIHAPUS, karena penambahan dilakukan inline di index.
 
+    /**
+     * Menyimpan Ras Hewan yang baru dibuat ke database (Digunakan oleh form inline di index).
+     */
     public function store(Request $request)
     {
         $validatedData = $this->validateRasHewan($request);
@@ -44,12 +45,20 @@ class RasHewanController extends Controller
                          ->with('success', 'Ras hewan berhasil ditambahkan.');
     }
 
+    /**
+     * Menampilkan formulir untuk mengedit Ras Hewan tertentu.
+     */
     public function edit(RasHewan $rasHewan)
     {
+        // Kita hanya perlu JenisHewan yang terkait untuk tampilan informasi, bukan dropdown.
+        // Jika perlu dropdown untuk ganti jenis, gunakan baris di bawah:
         $jenisHewan = JenisHewan::orderBy('nama_jenis_hewan')->get();
         return view('admin.ras-hewan.edit', compact('rasHewan', 'jenisHewan'));
     }
 
+    /**
+     * Memperbarui Ras Hewan tertentu di database.
+     */
     public function update(Request $request, RasHewan $rasHewan)
     {
         // Gunakan ID rasHewan untuk validasi unique saat update
@@ -61,13 +70,16 @@ class RasHewanController extends Controller
                          ->with('success', 'Ras hewan berhasil diperbarui.');
     }
 
+    /**
+     * Menghapus Ras Hewan dari database.
+     */
     public function destroy(RasHewan $rasHewan)
     {
         try {
             $rasHewan->delete();
             return redirect()->route('admin.ras-hewan.index')
                              ->with('success', 'Ras hewan berhasil dihapus.');
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
              return redirect()->route('admin.ras-hewan.index')
                              ->with('error', 'Gagal menghapus ras hewan karena masih terkait dengan data lain (misal: data hewan peliharaan).');
         }

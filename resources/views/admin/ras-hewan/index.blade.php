@@ -19,45 +19,45 @@
                 {{ session('error') }}
             </div>
         @endif
+
+        {{-- TOMBOL TAMBAH STANDALONE DIHAPUS --}}
         
         {{-- Tabel pengelompokan --}}
         <table class="ras-hewan-grouped-table">
             <thead>
-                {{-- Header biru sesuai foto --}}
                 <tr class="header-row-grouped">
                     <th class="col-jenis">Jenis Hewan</th>
                     <th class="col-ras">Ras yang Terdaftar</th>
                 </tr>
             </thead>
             <tbody>
-                {{-- Perulangan utama untuk setiap kelompok Jenis Hewan --}}
-                @forelse ($groupedRasHewan as $jenisNama => $rasCollection)
+                {{-- Perulangan Utama berdasarkan Jenis Hewan --}}
+                @forelse ($jenisHewanWithRas as $jenis)
                     @php
-                        // Menghitung jumlah baris untuk Jenis Hewan: 
-                        // Jumlah ras + 1 baris untuk input "Tambah Ras"
-                        $rowCount = $rasCollection->count() + 1;
+                        // Hitung jumlah ras (bisa 0)
+                        $rasCollection = $jenis->ras;
+                        $rasCount = $rasCollection->count();
                         
-                        // Ambil detail Jenis Hewan (asumsi semua item di collection memiliki 'jenis' yang sama)
-                        $jenisDetail = $rasCollection->first()->jenis ?? null;
+                        // Jumlah baris adalah jumlah ras + 1 (untuk form tambah)
+                        $rowCount = max(1, $rasCount) + 1; // Pastikan minimal 2 baris (1 untuk ras, 1 untuk form)
                         
-                        // Menyiapkan Nama Jenis Hewan dengan Nama Latin (sesuai foto)
-                        $namaLengkap = $jenisNama;
-                        if ($jenisDetail && $jenisDetail->nama_latin) {
-                            $namaLengkap .= ' (' . $jenisDetail->nama_latin . ')';
-                        }
+                        // Menyiapkan Nama Jenis Hewan
+                        $namaLengkap = $jenis->nama_jenis_hewan;
+                        $hasRas = $rasCount > 0;
                     @endphp
 
-                    {{-- Baris pertama untuk Jenis Hewan --}}
                     <tr>
                         {{-- Kolom Jenis Hewan dengan rowspan --}}
                         <td class="jenis-hewan-cell" rowspan="{{ $rowCount }}">
                             <strong>{{ $namaLengkap }}</strong>
                         </td>
                         
-                        {{-- Menampilkan semua ras satu per satu --}}
-                        @foreach ($rasCollection->sortBy('nama_ras') as $index => $ras)
-                            {{-- Hanya baris pertama yang digabung dengan kolom Jenis Hewan di atas --}}
-                            @if ($index === 0)
+                        @if ($hasRas)
+                            {{-- Menampilkan semua ras satu per satu --}}
+                            @foreach ($rasCollection as $index => $ras)
+                                {{-- Baris ras berikutnya --}}
+                                @if ($index > 0) <tr> @endif
+                                
                                 <td class="ras-hewan-item">
                                     {{ $ras->nama_ras }}
                                     <div class="action-links-inline">
@@ -69,42 +69,42 @@
                                         </form>
                                     </div>
                                 </td>
-                            </tr>
-                            @else
-                            {{-- Baris ras berikutnya untuk Jenis Hewan yang sama --}}
-                            <tr>
-                                <td class="ras-hewan-item">
-                                    {{ $ras->nama_ras }}
-                                    <div class="action-links-inline">
-                                        <a href="{{ route('admin.ras-hewan.edit', $ras->idras_hewan) }}" class="edit-link">edit</a>
-                                        <form action="{{ route('admin.ras-hewan.destroy', $ras->idras_hewan) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="delete-link" onclick="return confirm('Hapus ras {{ $ras->nama_ras }}?')">hapus</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endif
-                        @endforeach
+                                
+                                @if ($index > 0) </tr> @endif
+                                
+                            @endforeach
+                            
+                        @else
+                            {{-- Jika tidak ada ras, baris pertama kolom ras menampilkan pesan --}}
+                            <td class="ras-hewan-item">
+                                <span class="text-muted">Belum ada ras terdaftar.</span>
+                            </td>
+                        </tr>
+                        @endif
                         
-                        {{-- Baris Tambah Ras Baru (Input field) --}}
+                    {{-- Baris Tambah Ras Baru (Selalu ditampilkan) --}}
                     <tr>
                         <td class="ras-hewan-item add-new-row">
-                            {{-- Form Sederhana untuk Tambah Ras Baru --}}
+                            {{-- Form Sederhana untuk Tambah Ras Baru (Inline) --}}
                             <form action="{{ route('admin.ras-hewan.store') }}" method="POST" class="inline-add-form">
                                 @csrf
-                                {{-- Hidden input untuk jenis hewan ID yang diambil dari jenisDetail --}}
-                                <input type="hidden" name="idjenis_hewan" value="{{ $jenisDetail->idjenis_hewan ?? '' }}"> 
+                                {{-- Hidden input menggunakan ID jenis hewan saat ini --}}
+                                <input type="hidden" name="idjenis_hewan" value="{{ $jenis->idjenis_hewan }}"> 
                                 <input type="text" name="nama_ras" placeholder="Nama ras baru" required>
                                 <button type="submit" class="add-ras-btn">Tambah Ras</button>
                             </form>
+                            {{-- Menampilkan error untuk form inline terakhir yang disubmit --}}
+                            @error('nama_ras')
+                                @if (old('idjenis_hewan') == $jenis->idjenis_hewan)
+                                    <div class="invalid-feedback d-block text-danger" style="font-size: 0.9em;">{{ $message }}</div>
+                                @endif
+                            @enderror
                         </td>
                     </tr>
                     
                 @empty
                     <tr>
-                        <td colspan="2" style="text-align: center;">Tidak ada data jenis atau ras hewan.</td>
+                        <td colspan="2" style="text-align: center;">Tidak ada data jenis hewan terdaftar.</td>
                     </tr>
                 @endforelse
             </tbody>

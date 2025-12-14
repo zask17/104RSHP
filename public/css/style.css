@@ -158,7 +158,7 @@ tr {
 
 td {
     vertical-align: middle;
-    text-align: center;
+    /* text-align: center; */
     padding: 10px;
 }
 
