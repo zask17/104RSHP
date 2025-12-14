@@ -13,10 +13,8 @@ class Kategori extends Model
     protected $table = 'kategori';
     protected $primaryKey = 'idkategori';
     protected $fillable = ['nama_kategori'];
-    
-    // Secara default, Eloquent mengaktifkan timestamps (created_at dan updated_at).
-    // Jika tabel 'kategori' tidak memiliki kolom ini, Anda mungkin perlu menambahkan:
-    // public $timestamps = false; 
+    public $timestamps = false;
+
     
     /**
      * Relasi One-to-Many: Kategori memiliki banyak Hewan.

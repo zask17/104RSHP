@@ -88,7 +88,7 @@ Route::middleware('isAdministrator')->group(function () {
             'ras-hewan' => 'rasHewan'
         ])->names('admin.ras-hewan');
         
-    // KATEGORI HEWAN
+    // KATEGORI
     Route::get('/kategori', [KategoriController::class, 'index'])->name('admin.kategori.index');
     Route::get('/kategori/create', [KategoriController::class, 'create'])->name('admin.kategori.create');
     Route::post('/kategori', [KategoriController::class, 'store'])->name('admin.kategori.store');
