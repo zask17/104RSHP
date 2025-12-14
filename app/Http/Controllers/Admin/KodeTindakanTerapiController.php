@@ -39,6 +39,10 @@ class KodeTindakanTerapiController extends Controller
     {
         $validatedData = $this->validateKodeTindakanTerapi($request);
 
+        // PERBAIKAN: Mapping 'deskripsi' dari input ke 'deskripsi_tindakan_terapi' (kolom DB)
+        $validatedData['deskripsi_tindakan_terapi'] = $validatedData['deskripsi'];
+        unset($validatedData['deskripsi']);
+
         KodeTindakanTerapi::create($validatedData);
 
         return redirect()->route('admin.kode-tindakan-terapi.index')
@@ -62,6 +66,10 @@ class KodeTindakanTerapiController extends Controller
     {
         // Menggunakan ID model untuk mengabaikan unique check pada dirinya sendiri
         $validatedData = $this->validateKodeTindakanTerapi($request, $kodeTindakanTerapi->idkode_tindakan_terapi);
+
+        // PERBAIKAN: Mapping 'deskripsi' dari input ke 'deskripsi_tindakan_terapi' (kolom DB)
+        $validatedData['deskripsi_tindakan_terapi'] = $validatedData['deskripsi'];
+        unset($validatedData['deskripsi']);
 
         $kodeTindakanTerapi->update($validatedData);
 
@@ -104,7 +112,8 @@ class KodeTindakanTerapiController extends Controller
                 'max:50',
                 $uniqueRule,
             ],
-            'deskripsi' => 'required|string|max:500',
+            // Validasi menggunakan nama input form: 'deskripsi'
+            'deskripsi' => 'required|string|max:500', 
             'idkategori' => 'required|exists:kategori,idkategori',
             'idkategori_klinis' => 'required|exists:kategori_klinis,idkategori_klinis',
         ], [

@@ -23,7 +23,6 @@ class KodeTindakanTerapi extends Model
      */
     public function kategori()
     {
-        // The Kategori class is now correctly resolved
         return $this->belongsTo(Kategori::class, 'idkategori', 'idkategori');
     }
 

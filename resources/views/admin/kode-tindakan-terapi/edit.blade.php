@@ -84,7 +84,7 @@
                     rows="3"
                     placeholder="Jelaskan secara singkat tindakan/terapi ini"
                     required
-                >{{ old('deskripsi', $kodeTindakanTerapi->deskripsi) }}</textarea>
+                >{{ old('deskripsi', $kodeTindakanTerapi->deskripsi_tindakan_terapi) }}</textarea> {{-- Perbaikan: Menggunakan deskripsi_tindakan_terapi --}}
                 @error('deskripsi')
                     <div class="alert alert-danger">{{ $message }}</div>
                 @enderror

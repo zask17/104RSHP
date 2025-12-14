@@ -73,7 +73,7 @@
                 <label for="deskripsi">Deskripsi Tindakan <span class="text-danger">*</span></label>
                 <textarea
                     id="deskripsi"
-                    name="deskripsi"
+                    name="deskripsi" {{-- Nama input 'deskripsi' sesuai dengan validasi di Controller --}}
                     rows="3"
                     placeholder="Jelaskan secara singkat tindakan/terapi ini"
                     required
