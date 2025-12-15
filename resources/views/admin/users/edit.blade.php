@@ -11,7 +11,7 @@
             <i class="fas fa-arrow-left"></i> Kembali ke Daftar User
         </a>
 
-        <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
+        <form action="{{ route('admin.users.update', $user->iduser) }}" method="POST">
             @csrf
             @method('PUT') {{-- Gunakan metode PUT untuk update --}}
 
