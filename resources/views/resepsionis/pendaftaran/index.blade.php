@@ -4,7 +4,7 @@
     <div class="page-container">
         <div class="page-header">
             <h1><i class="fas fa-clipboard-list"></i> Antrean Pendaftaran Hari Ini</h1>
-            <p>Daftar pasien yang registrasi (walk-in) pada tanggal **{{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}**.</p>
+            <p>Daftar pasien yang registrasi (walk-in) pada tanggal {{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}.</p>
         </div>
 
         <div class="main-content">
@@ -40,7 +40,7 @@
                 <tbody>
                     @forelse ($pendaftarans as $pendaftaran)
                         <tr>
-                            <td>**{{ $pendaftaran->no_urut }}**</td>
+                            <td>{{ $pendaftaran->no_urut }}</td>
                             <td>{{ \Carbon\Carbon::parse($pendaftaran->waktu_temu)->format('H:i') }} WIB</td>
                             <td>
                                 @php
