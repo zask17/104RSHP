@@ -22,43 +22,27 @@
             @endif
 
             <div class="dashboard-grid">
-                <a href="{{ route('resepsionis.pendaftaran.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-paw"></i> Daftar Pasien</h3>
-                    <p>Lihat pasien yang sudah terdaftar atau mulai registrasi pasien baru.</p>
+                <a href="{{ route('resepsionis.pendaftaran') }}" class="dashboard-card">
+                    <h3><i class="fas fa-paw"></i> Daftar Pendaftaran</h3>
+                    <p>Lihat antrean pendaftaran dan mulai registrasi pasien baru.</p>
                 </a>
+
+                {{-- Arahkan ke CRUD Temu Dokter --}}
                 <a href="{{ route('resepsionis.temu-dokter.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-dog"></i> Temu</h3>
-                    <p>Kelola berbagai ras dari setiap jenis hewan.</p>
-                </a>
-                <a href="{{ route('admin.kategori-hewan.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-tags"></i> Kategori Hewan</h3>
-                    <p>Kelola kategori umum untuk hewan.</p>
+                    <h3><i class="fas fa-dog"></i> Kelola Temu Dokter</h3>
+                    <p>Jadwalkan, lihat, dan kelola pertemuan dengan dokter.</p>
                 </a>
 
-                <a href="{{ route('admin.kategori-klinis.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-stethoscope"></i> Kategori Klinis</h3>
-                    <p>Kelola kategori untuk keperluan klinis.</p>
-                </a>
-                <a href="{{ route('admin.kode-tindakan-terapi.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-notes-medical"></i> Kode Tindakan</h3>
-                    <p>Kelola kode untuk tindakan dan terapi.</p>
+                {{-- Arahkan ke CRUD Pets (Pasien) --}}
+                <a href="{{ route('resepsionis.pets.index') }}" class="dashboard-card">
+                    <h3><i class="fas fa-cat"></i> Data Pasien (Pets)</h3>
+                    <p>Kelola data semua pasien yang terdaftar.</p>
                 </a>
 
-                <a href="{{ route('admin.users.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-users-cog"></i> Manajemen User</h3>
-                    <p>Kelola akun pengguna sistem.</p>
-                </a>
-                <a href="{{ route('admin.roles.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-user-shield"></i> Manajemen Role</h3>
-                    <p>Kelola hak akses dan peran pengguna.</p>
-                </a>
-                <a href="{{ route('admin.pemilik.index') }}" class="dashboard-card">
+                {{-- Arahkan ke CRUD Pemilik --}}
+                <a href="{{ route('resepsionis.pemilik.index') }}" class="dashboard-card">
                     <h3><i class="fas fa-user-friends"></i> Data Pemilik</h3>
                     <p>Kelola data pemilik hewan peliharaan.</p>
-                </a>
-                <a href="{{ route('admin.pets.index') }}" class="dashboard-card">
-                    <h3><i class="fas fa-cat"></i> Data Pasien (Pets)</h3>
-                    <p>Lihat dan kelola data semua pasien.</p>
                 </a>
             </div>
 

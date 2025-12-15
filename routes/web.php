@@ -12,12 +12,19 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\DashboardAdminController;
 use App\Http\Controllers\Dokter\DashboardDokterController;
 use App\Http\Controllers\Perawat\DashboardPerawatController;
+
+// --- Controller Resepsionis yang digunakan ---
 use App\Http\Controllers\Resepsionis\DashboardResepsionisController;
-use App\Http\Controllers\Pemilik\DashboardPemilikController;
 use App\Http\Controllers\Resepsionis\PendaftaranController;
+use App\Http\Controllers\Resepsionis\PetController as ResepsionisPetController;
+use App\Http\Controllers\Resepsionis\PemilikController as ResepsionisPemilikController;
+use App\Http\Controllers\Resepsionis\TemuDokterController;
+
+// --- Controller Pemilik yang digunakan ---
+use App\Http\Controllers\Pemilik\DashboardPemilikController;
 use App\Http\Controllers\Pemilik\PeliharaanController;
 
-// --- FIX: Tambahkan semua Controller Admin yang digunakan ---
+// --- Controller Admin yang digunakan ---
 use App\Http\Controllers\Admin\DataMasterController; // <-- FIX
 use App\Http\Controllers\Admin\JenisHewanController; // <-- FIX
 use App\Http\Controllers\Admin\RasHewanController; // <-- FIX
@@ -186,7 +193,24 @@ Route::middleware(['isPerawat'])->group(function () {
 // AKSES RESEPSIONIS
 Route::middleware(['isResepsionis'])->group(function () {
     Route::get('/resepsionis/dashboard', [DashboardResepsionisController::class, 'index'])->name('resepsionis.dashboard');
+    
+    // Rute untuk Pendaftaran
     Route::get('/resepsionis/pendaftaran', [PendaftaranController::class, 'index'])->name('resepsionis.pendaftaran');
+    
+    // Rute Resource untuk Pasien (Pets)
+    Route::resource('resepsionis/pets', ResepsionisPetController::class)
+        ->parameters(['pets' => 'pet'])
+        ->names('resepsionis.pets');
+        
+    // Rute Resource untuk Pemilik
+    Route::resource('resepsionis/pemilik', ResepsionisPemilikController::class)
+        ->parameters(['pemilik' => 'pemilik'])
+        ->names('resepsionis.pemilik');
+        
+    // Rute Resource untuk Temu Dokter
+    Route::resource('resepsionis/temu-dokter', TemuDokterController::class)
+        ->parameters(['temu-dokter' => 'temuDokter'])
+        ->names('resepsionis.temu-dokter');
 });
 
 //akses Pemilik
