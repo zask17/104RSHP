@@ -253,6 +253,8 @@ Route::middleware(['isResepsionis'])->group(function () {
 //AKSES PERAWAT
 Route::middleware(['isPerawat'])->group(function () {
     Route::get('/perawat/dashboard', [DashboardPerawatController::class, 'index'])->name('perawat.dashboard');
+    Route::delete('/perawat/rekam-medis/{id}', [DashboardPerawatController::class, 'destroyRekamMedis'])->name('perawat.rm.destroy');
+    Route::get('/perawat/profile', [App\Http\Controllers\Perawat\ProfileController::class, 'index'])->name('perawat.profile.index');
 });
 
 
