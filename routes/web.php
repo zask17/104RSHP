@@ -210,6 +210,8 @@ Route::middleware(['isDokter'])->group(function () {
 
     // 4. PROFIL DOKTER
     Route::get('/dokter/profile', [ProfileController::class, 'index'])->name('dokter.profile.index');
+    Route::get('/dokter/profile/edit', [ProfileController::class, 'edit'])->name('dokter.profile.edit');
+    Route::put('/dokter/profile/update', [ProfileController::class, 'update'])->name('dokter.profile.update');
 });
 
 

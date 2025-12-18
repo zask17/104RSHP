@@ -104,7 +104,7 @@ class PetController extends Controller
     // Ras Hewan yang muncul sesuai dengan Jenis Hewan yang dipilih (AJAX)
     public function getRasByJenis($id)
     {
-        $ras = \App\Models\RasHewan::where('idjenis_hewan', $id)->orderBy('nama_ras', 'asc')->get();
+        $ras = RasHewan::where('idjenis_hewan', $id)->orderBy('nama_ras', 'asc')->get();
         return response()->json($ras);
     }
     /**
