@@ -47,7 +47,7 @@ class PetController extends Controller
             'idjenis_hewan' => 'required|exists:jenis_hewan,idjenis_hewan',
             'idras_hewan' => 'nullable|exists:ras_hewan,idras_hewan',
             'tanggal_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:Jantan,Betina', 
+            'jenis_kelamin' => 'required|in:Jantan,Betina',
             'warna_tanda' => 'nullable|string|max:255',
         ]);
 
@@ -84,7 +84,7 @@ class PetController extends Controller
             'idjenis_hewan' => 'required|exists:jenis_hewan,idjenis_hewan',
             'idras_hewan' => 'nullable|exists:ras_hewan,idras_hewan',
             'tanggal_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:Jantan,Betina', 
+            'jenis_kelamin' => 'required|in:Jantan,Betina',
             'warna_tanda' => 'nullable|string',
         ]);
 
@@ -95,6 +95,13 @@ class PetController extends Controller
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Gagal memperbarui Pasien: ' . $e->getMessage());
         }
+    }
+
+    // Ras Hewan yang muncul sesuai dengan Jenis Hewan yang dipilih (AJAX)
+    public function getRasByJenis($id)
+    {
+        $ras = \App\Models\RasHewan::where('idjenis_hewan', $id)->orderBy('nama_ras')->get();
+        return response()->json($ras);
     }
 
     /**
@@ -108,7 +115,7 @@ class PetController extends Controller
         } catch (\Exception $e) {
             // Cek jika ada foreign key constraint (misalnya, terkait dengan rekam medis)
             if (DB::getDriverName() == 'mysql' && $e instanceof \Illuminate\Database\QueryException && $e->getCode() == 23000) {
-                 return back()->with('error', 'Gagal menghapus Pasien: Data Pasien masih terkait dengan data lain (mis. Rekam Medis).');
+                return back()->with('error', 'Gagal menghapus Pasien: Data Pasien masih terkait dengan data lain (mis. Rekam Medis).');
             }
             return back()->with('error', 'Gagal menghapus Pasien: ' . $e->getMessage());
         }

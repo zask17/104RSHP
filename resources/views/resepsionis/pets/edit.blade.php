@@ -3,142 +3,53 @@
 @section('content')
 <div class="page-container">
     <div class="form-container">
-        <h1><i class="fas fa-edit"></i> Edit Pasien: {{ $pet->nama }}</h1>
-        
-        <a href="{{ route('resepsionis.pets.index') }}" class="back-link">
-            <i class="fas fa-arrow-left"></i> Kembali ke Daftar Pasien
-        </a>
-
-        @if (session('error'))
-            <div class="alert alert-danger" role="alert">
-                {{ session('error') }}
-            </div>
-        @endif
-
+        <h1>Edit Pasien: {{ $pet->nama }}</h1>
         <form action="{{ route('resepsionis.pets.update', $pet->idpet) }}" method="POST">
             @csrf
             @method('PUT')
-
-            {{-- Nama Pasien --}}
+            
             <div class="form-group">
-                <label for="nama">Nama Pasien <span class="text-danger">*</span></label>
-                <input type="text" id="nama" name="nama" value="{{ old('nama', $pet->nama) }}" required>
-                @error('nama')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Pemilik --}}
-            <div class="form-group">
-                <label for="idpemilik">Pemilik <span class="text-danger">*</span></label>
-                <select id="idpemilik" name="idpemilik" required class="form-control select2-field">
-                    <option value="">-- Pilih Pemilik --</option>
-                    {{-- $pemiliks dikirim dari PetController@edit --}}
-                    @foreach ($pemiliks as $pemilik)
-                        <option value="{{ $pemilik->idpemilik }}" {{ old('idpemilik', $pet->idpemilik) == $pemilik->idpemilik ? 'selected' : '' }}>
-                            {{ $pemilik->nama_pemilik }} (ID: {{ $pemilik->idpemilik }})
-                        </option>
-                    @endforeach
-                </select>
-                @error('idpemilik')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Jenis Hewan --}}
-            <div class="form-group">
-                <label for="idjenis_hewan">Jenis Hewan <span class="text-danger">*</span></label>
+                <label>Jenis Hewan*</label>
                 <select id="idjenis_hewan" name="idjenis_hewan" required class="form-control">
-                    <option value="">-- Pilih Jenis Hewan --</option>
-                    {{-- $jenisHewans dikirim dari PetController@edit --}}
-                    @foreach ($jenisHewans as $jenis)
-                        <option value="{{ $jenis->idjenis_hewan }}" {{ old('idjenis_hewan', $pet->idjenis_hewan) == $jenis->idjenis_hewan ? 'selected' : '' }}>
-                            {{ $jenis->nama_jenis_hewan }}
+                    @foreach($jenisHewans as $j)
+                        <option value="{{ $j->idjenis_hewan }}" {{ $pet->idjenis_hewan == $j->idjenis_hewan ? 'selected' : '' }}>
+                            {{ $j->nama_jenis_hewan }}
                         </option>
                     @endforeach
                 </select>
-                @error('idjenis_hewan')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
             </div>
 
-            {{-- Ras Hewan --}}
             <div class="form-group">
-                <label for="idras_hewan">Ras Hewan (Opsional)</label>
+                <label>Ras Hewan</label>
                 <select id="idras_hewan" name="idras_hewan" class="form-control">
-                    <option value="">-- Pilih Ras Hewan --</option>
-                    {{-- $rasHewans dikirim dari PetController@edit --}}
-                    @foreach ($rasHewans as $ras)
-                        <option value="{{ $ras->idras_hewan }}" {{ old('idras_hewan', $pet->idras_hewan) == $ras->idras_hewan ? 'selected' : '' }}>
-                            {{ $ras->nama_ras }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('idras_hewan')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
+                    </select>
             </div>
 
-            {{-- Tanggal Lahir --}}
-            <div class="form-group">
-                <label for="tanggal_lahir">Tanggal Lahir <span class="text-danger">*</span></label>
-                <input type="date" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir', $pet->tanggal_lahir) }}" required>
-                @error('tanggal_lahir')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Jenis Kelamin --}}
-            <div class="form-group">
-                <label for="jenis_kelamin">Jenis Kelamin <span class="text-danger">*</span></label>
-                <select id="jenis_kelamin" name="jenis_kelamin" required>
-                    <option value="">-- Pilih Jenis Kelamin --</option>
-                    {{-- $pet->jenis_kelamin akan diekstrak sebagai 'Jantan' atau 'Betina' berkat Accessor --}}
-                    <option value="Jantan" {{ old('jenis_kelamin', $pet->jenis_kelamin) == 'Jantan' ? 'selected' : '' }}>Jantan</option>
-                    <option value="Betina" {{ old('jenis_kelamin', $pet->jenis_kelamin) == 'Betina' ? 'selected' : '' }}>Betina</option>
-                </select>
-                @error('jenis_kelamin')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            {{-- Warna/Tanda --}}
-            <div class="form-group">
-                <label for="warna_tanda">Warna/Tanda Khas</label>
-                <input type="text" id="warna_tanda" name="warna_tanda" value="{{ old('warna_tanda', $pet->warna_tanda) }}" placeholder="Contoh: Putih belang coklat">
-                @error('warna_tanda')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <button type="submit" class="btn-submit">
-                <i class="fas fa-save"></i> Perbarui Data Pasien
-            </button>
+            <button type="submit" class="btn btn-success">Perbarui Pasien</button>
         </form>
     </div>
 </div>
 
-@push('styles')
-    {{-- Select2 CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-        .select2-container .select2-selection--single { height: 40px !important; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px !important; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
-    </style>
-@endpush
-
-@push('scripts')
-    {{-- Select2 JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Aktifkan Select2 hanya untuk dropdown Pemilik
-            $('#idpemilik').select2({
-                theme: "default",
-                placeholder: "Cari Pemilik",
-                allowClear: true
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function loadRas(id, selectedId = null) {
+        if(id) {
+            $.get('/get-ras/' + id, function(data) {
+                $('#idras_hewan').empty().append('<option value="">-- Pilih Ras --</option>');
+                $.each(data, function(key, value) {
+                    let selected = (selectedId == value.idras_hewan) ? 'selected' : '';
+                    $('#idras_hewan').append('<option value="'+ value.idras_hewan +'" '+ selected +'>'+ value.nama_ras +'</option>');
+                });
             });
-        });
-    </script>
-@endpush
+        }
+    }
+
+    // Load saat pertama kali halaman dibuka
+    loadRas($('#idjenis_hewan').val(), "{{ $pet->idras_hewan }}");
+
+    // Load saat Jenis Hewan diubah manual
+    $('#idjenis_hewan').on('change', function() {
+        loadRas($(this).val());
+    });
+</script>
+@endsection

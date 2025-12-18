@@ -188,7 +188,7 @@ Route::middleware('isAdministrator')->group(function () {
 });
 
 
-//akses Dokter
+//AKSES DOKTER
 Route::middleware(['isDokter'])->group(function () {
     Route::get('/dokter/dashboard', [DashboardDokterController::class, 'index'])->name('dokter.dashboard');
 
@@ -212,7 +212,7 @@ Route::middleware(['isDokter'])->group(function () {
     Route::get('/dokter/profile', [ProfileController::class, 'index'])->name('dokter.profile.index');
 });
 
-//akses Perawat
+//AKSES PERAWAT
 Route::middleware(['isPerawat'])->group(function () {
     Route::get('/perawat/dashboard', [DashboardPerawatController::class, 'index'])->name('perawat.dashboard');
 });
@@ -220,24 +220,28 @@ Route::middleware(['isPerawat'])->group(function () {
 // AKSES RESEPSIONIS
 Route::middleware(['isResepsionis'])->group(function () {
     Route::get('/resepsionis/dashboard', [DashboardResepsionisController::class, 'index'])->name('resepsionis.dashboard');
-    
+
+    // --- FITUR DROPDOWN RAS (Letakkan di sini) ---
+    // Pastikan menggunakan ResepsionisPetController jika itu yang mengelola data pet
+Route::get('/get-ras/{id}', [App\Http\Controllers\Resepsionis\PetController::class, 'getRasByJenis'])->name('get.ras.by.jenis');
+
     // --- 1. REGISTRASI PASIEN SAAT INI (Walk-in/Antrean Harian) ---
     // Menggunakan PendaftaranController sebagai Resource CRUD untuk registrasi harian
     Route::resource('resepsionis/pendaftaran', PendaftaranController::class)
         ->parameters(['pendaftaran' => 'pendaftaran']) // Model binding tidak perlu, pakai ID
         ->names('resepsionis.pendaftaran');
-        
+
     // --- 2. MANAJEMEN JANJI TEMU (Appointments) ---
     // Menggunakan TemuDokterController sebagai Resource CRUD untuk janji temu non-harian
     Route::resource('resepsionis/temu-dokter', TemuDokterController::class)
         ->parameters(['temu-dokter' => 'temuDokter'])
         ->names('resepsionis.temu-dokter');
-        
+
     // Rute Resource untuk Pasien (Pets)
     Route::resource('resepsionis/pets', ResepsionisPetController::class)
         ->parameters(['pets' => 'pet'])
         ->names('resepsionis.pets');
-        
+
     // Rute Resource untuk Pemilik
     Route::resource('resepsionis/pemilik', ResepsionisPemilikController::class)
         ->parameters(['pemilik' => 'pemilik'])
