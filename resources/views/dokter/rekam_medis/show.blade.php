@@ -1,99 +1,97 @@
-{{-- resources/views/dokter/rekam_medis/show.blade.php --}}
-@extends('layouts.app') 
+@extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
-    <a href="{{ route('dokter.rekam-medis.index') }}" class="btn btn-secondary mb-3">Kembali ke Daftar Janji Temu</a>
-    <h2>Rekam Medis Pasien: {{ $rekamMedis->temuDokter->pet->nama }}</h2>
-    <p>Pemeriksaan oleh: {{ $rekamMedis->dokter->user->nama ?? 'Dokter' }} pada {{ \Carbon\Carbon::parse($rekamMedis->created_at)->format('d F Y H:i') }}</p>
+<div class="page-container">
+    <div class="page-header">
+        <h1>Detail Rekam Medis: {{ $rekamMedis->nama_pet }}</h1>
+        <p>Kelola tindakan klinis, terapi, dan catatan medis pasien.</p>
+    </div>
 
-    @if (session('success'))
+    @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            Periksa input Anda di form Tambah Tindakan/Terapi.
-        </div>
-    @endif
 
-    {{-- Detail Rekam Medis Utama --}}
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white">Diagnosis dan Temuan</div>
-        <div class="card-body">
-            <h5>Anamnesa:</h5>
-            <p>{{ $rekamMedis->anamnesa }}</p>
-            <hr>
-            <h5>Temuan Klinis:</h5>
-            <p>{{ $rekamMedis->temuan_klinis }}</p>
-            <hr>
-            <h5>Diagnosa:</h5>
-            <p class="font-weight-bold">{{ $rekamMedis->diagnosa }}</p>
+    {{-- Ringkasan Diagnosa --}}
+    <div class="dashboard-card" style="text-align: left; margin-bottom: 30px;">
+        <h3><i class="fas fa-stethoscope"></i> Diagnosa Utama</h3>
+        <div style="padding: 15px;">
+            <p><strong>Anamnesa:</strong> {{ $rekamMedis->anamnesa }}</p>
+            <p><strong>Temuan Klinis:</strong> {{ $rekamMedis->temuan_klinis }}</p>
+            <p><strong>Diagnosa:</strong> <span style="color: #e74c3c; font-weight: bold;">{{ $rekamMedis->diagnosa }}</span></p>
+            <p><small>Dokter Pemeriksa: {{ $rekamMedis->nama_dokter }}</small></p>
         </div>
     </div>
-    
-    {{-- Tabel Detail Tindakan / Terapi (CRUD) --}}
-    <h3>Detail Tindakan / Terapi</h3>
-    <div class="table-responsive mb-4">
-        <table class="table table-bordered table-sm">
-            <thead class="bg-light">
-                <tr>
-                    <th>Kode</th>
-                    <th>Kategori</th>
-                    <th>Deskripsi</th>
-                    <th>Detail (Dosis/Catatan)</th>
-                    <th width="10%">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($rekamMedis->detailRekamMedis as $detail)
-                <tr>
-                    <td>{{ $detail->kodeTindakanTerapi->kode }}</td>
-                    <td>{{ $detail->kodeTindakanTerapi->kategori->nama_kategori ?? '-' }}</td>
-                    <td>{{ $detail->kodeTindakanTerapi->deskripsi_tindakan_terapi }}</td>
-                    <td>{{ $detail->detail }}</td>
-                    <td>
-                        {{-- Form Delete --}}
-                        <form action="{{ route('dokter.detail-rekam-medis.destroy', $detail->iddetail_rekam_medis) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus detail ini?')">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center">Belum ada tindakan atau terapi yang dicatat.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
 
-    {{-- Form Tambah Tindakan/Terapi Baru --}}
-    <h4>Tambah Tindakan/Terapi Baru</h4>
-    <div class="card p-3">
+    {{-- Daftar Tindakan (Read & Delete) --}}
+    <div class="subjudul">Daftar Tindakan & Terapi</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Kode</th>
+                <th>Kategori</th>
+                <th>Tindakan / Terapi</th>
+                <th>Catatan Detail</th>
+                <th style="text-align: center;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($details as $d)
+            <tr>
+                <td><span class="status-badge status-completed">{{ $d->kode }}</span></td>
+                <td>{{ $d->nama_kategori }}</td>
+                <td>{{ $d->deskripsi_tindakan_terapi }}</td>
+                <td>{{ $d->detail ?? '-' }}</td>
+                <td style="text-align: center;">
+                    {{-- Form Hapus --}}
+                    <form action="{{ route('dokter.detail-rekam-medis.destroy', $d->iddetail_rekam_medis) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="delete-link" onclick="return confirm('Apakah Anda yakin ingin menghapus tindakan ini?')">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="5" style="text-align: center;">Belum ada detail tindakan medis.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    {{-- Form Tambah Tindakan (Create) --}}
+    <div class="form-container" style="margin-top: 50px; background-color: #f9fbfd;">
+        <h3 class="form-title-text"><i class="fas fa-plus-circle"></i> Tambah Tindakan Baru</h3>
         <form action="{{ route('dokter.detail-rekam-medis.store', $rekamMedis->idrekam_medis) }}" method="POST">
             @csrf
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="idkode_tindakan_terapi">Tindakan / Terapi:</label>
-                    <select name="idkode_tindakan_terapi" class="form-control" required>
-                        <option value="">Pilih Kode Tindakan</option>
-                        @foreach($kodeTindakanTerapi as $kode)
-                            <option value="{{ $kode->idkode_tindakan_terapi }}" {{ old('idkode_tindakan_terapi') == $kode->idkode_tindakan_terapi ? 'selected' : '' }}>
-                                {{ $kode->kode }} - {{ $kode->deskripsi_tindakan_terapi }} ({{ $kode->kategori->nama_kategori ?? 'Tanpa Kategori' }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="detail">Detail Tambahan (Dosis/Catatan):</label>
-                    <textarea name="detail" class="form-control" rows="1">{{ old('detail') }}</textarea>
-                </div>
+            <div class="form-group">
+                <label>Pilih Kode Tindakan/Terapi</label>
+                <select name="idkode_tindakan_terapi" required>
+                    <option value="">-- Pilih Tindakan --</option>
+                    @foreach($kodeTindakan as $k)
+                        <option value="{{ $k->idkode_tindakan_terapi }}">
+                            [{{ $k->kode }}] {{ $k->deskripsi_tindakan_terapi }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
-            
-            <button type="submit" class="btn btn-primary">Simpan Detail Tindakan/Terapi</button>
+
+            <div class="form-group">
+                <label>Catatan Detail (Dosis, Frekuensi, atau Instruksi)</label>
+                <textarea name="detail" rows="3" placeholder="Contoh: Dosis 2x1 hari setelah makan..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> Simpan Detail Tindakan
+            </button>
         </form>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{{ route('dokter.rekam-medis.index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Kembali ke Daftar Rekam Medis
+        </a>
     </div>
 </div>
 @endsection

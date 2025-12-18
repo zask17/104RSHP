@@ -23,14 +23,6 @@
                 </p>
             </div>
 
-
-            <div style="margin-top: 20px;">
-                <a href="{{ route('dokter.profile.edit') }}" class="btn-update"
-                    style="text-decoration: none; padding: 10px 20px; background-color: #f39c12; color: white; border-radius: 5px;">
-                    <i class="fas fa-edit"></i> Edit Profil
-                </a>
-            </div>
-
             <div class="dashboard-card" style="text-align: left;">
                 <h3><i class="fas fa-user-circle"></i> Detail Kontak</h3>
                 <hr>
@@ -39,6 +31,15 @@
                 <p><strong>Alamat:</strong> {{ $userProfile->alamat ?? '-' }}</p>
             </div>
         </div>
+
+
+        <div style="margin-top: 20px;">
+            <a href="{{ route('dokter.profile.edit') }}" class="btn-update"
+                style="text-decoration: none; padding: 10px 20px; background-color: #f39c12; color: white; border-radius: 5px;">
+                <i class="fas fa-edit"></i> Edit Profil
+            </a>
+        </div>
+
 
         <div class="dashboard-card" style="margin-top: 20px; background: #eaf5fb;">
             <h3>Statistik Pelayanan</h3>

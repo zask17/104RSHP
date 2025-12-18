@@ -187,26 +187,24 @@ Route::middleware('isAdministrator')->group(function () {
         ])->names('admin.pets');;
 });
 
-
-//AKSES DOKTER
+// AKSES DOKTER
 Route::middleware(['isDokter'])->group(function () {
     Route::get('/dokter/dashboard', [DashboardDokterController::class, 'index'])->name('dokter.dashboard');
 
     // 1. DATA PASIEN (Pet)
-    // Ganti PetController::class menjadi DokterPetController::class
     Route::get('/dokter/pasien', [DokterPetController::class, 'index'])->name('dokter.pasien.index');
-    Route::get('/dokter/pasien/{pet}/show', [DokterPetController::class, 'show'])->name('dokter.pasien.show');
+    Route::get('/dokter/pasien/{id}/show', [DokterPetController::class, 'show'])->name('dokter.pasien.show');
 
     // 2. REKAM MEDIS & JANJI TEMU
     Route::get('/dokter/rekam-medis', [RekamMedisController::class, 'index'])->name('dokter.rekam-medis.index');
-    Route::get('/dokter/rekam-medis/create/{temuDokter}', [RekamMedisController::class, 'create'])->name('dokter.rekam-medis.create');
+    Route::get('/dokter/rekam-medis/create/{id}', [RekamMedisController::class, 'create'])->name('dokter.rekam-medis.create');
     Route::post('/dokter/rekam-medis/store', [RekamMedisController::class, 'store'])->name('dokter.rekam-medis.store');
-    Route::get('/dokter/rekam-medis/{rekamMedis}/show', [RekamMedisController::class, 'show'])->name('dokter.rekam-medis.show');
+    Route::get('/dokter/rekam-medis/{id}/show', [RekamMedisController::class, 'show'])->name('dokter.rekam-medis.show');
 
-    // 3. CRUD DETAIL REKAM MEDIS
-    Route::post('/dokter/detail-rekam-medis/store/{rekamMedis}', [DetailRekamMedisController::class, 'store'])->name('dokter.detail-rekam-medis.store');
-    Route::put('/dokter/detail-rekam-medis/{detailRekamMedis}', [DetailRekamMedisController::class, 'update'])->name('dokter.detail-rekam-medis.update');
-    Route::delete('/dokter/detail-rekam-medis/{detailRekamMedis}', [DetailRekamMedisController::class, 'destroy'])->name('dokter.detail-rekam-medis.destroy');
+    // 3. CRUD DETAIL REKAM MEDIS (Tindakan/Terapi)
+    Route::post('/dokter/detail-rekam-medis/store/{idrekam_medis}', [DetailRekamMedisController::class, 'store'])->name('dokter.detail-rekam-medis.store');
+    Route::delete('/dokter/detail-rekam-medis/{id}', [DetailRekamMedisController::class, 'destroy'])->name('dokter.detail-rekam-medis.destroy');
+    Route::put('/dokter/detail-rekam-medis/{id}', [DetailRekamMedisController::class, 'update'])->name('dokter.detail-rekam-medis.update');
 
     // 4. PROFIL DOKTER
     Route::get('/dokter/profile', [ProfileController::class, 'index'])->name('dokter.profile.index');

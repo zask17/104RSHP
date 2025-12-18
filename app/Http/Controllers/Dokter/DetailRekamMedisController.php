@@ -3,54 +3,59 @@
 namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
-use App\Models\RekamMedis;
-use App\Models\DetailRekamMedis;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DetailRekamMedisController extends Controller
 {
-    // Menyimpan Detail Rekam Medis baru (Create)
-    public function store(Request $request, RekamMedis $rekamMedis)
+    /**
+     * CREATE: Menyimpan detail tindakan baru
+     */
+    public function store(Request $request, $idrekam_medis)
     {
         $request->validate([
             'idkode_tindakan_terapi' => 'required|exists:kode_tindakan_terapi,idkode_tindakan_terapi',
             'detail' => 'nullable|string|max:1000',
         ]);
 
-        DetailRekamMedis::create([
-            'idrekam_medis' => $rekamMedis->idrekam_medis,
+        DB::table('detail_rekam_medis')->insert([
+            'idrekam_medis' => $idrekam_medis,
             'idkode_tindakan_terapi' => $request->idkode_tindakan_terapi,
             'detail' => $request->detail,
         ]);
 
-        return redirect()->route('dokter.rekam-medis.show', $rekamMedis->idrekam_medis)
-            ->with('success', 'Detail tindakan/terapi berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Detail tindakan/terapi berhasil ditambahkan.');
     }
 
-    // Mengubah Detail Rekam Medis (Update)
-    public function update(Request $request, DetailRekamMedis $detailRekamMedis)
+    /**
+     * UPDATE: Mengubah detail tindakan yang sudah ada
+     */
+    public function update(Request $request, $id)
     {
         $request->validate([
             'idkode_tindakan_terapi' => 'required|exists:kode_tindakan_terapi,idkode_tindakan_terapi',
             'detail' => 'nullable|string|max:1000',
         ]);
 
-        $detailRekamMedis->update([
-            'idkode_tindakan_terapi' => $request->idkode_tindakan_terapi,
-            'detail' => $request->detail,
-        ]);
+        DB::table('detail_rekam_medis')
+            ->where('iddetail_rekam_medis', $id)
+            ->update([
+                'idkode_tindakan_terapi' => $request->idkode_tindakan_terapi,
+                'detail' => $request->detail,
+            ]);
 
-        return redirect()->route('dokter.rekam-medis.show', $detailRekamMedis->idrekam_medis)
-            ->with('success', 'Detail tindakan/terapi berhasil diubah.');
+        return redirect()->back()->with('success', 'Detail tindakan berhasil diperbarui.');
     }
 
-    // Menghapus Detail Rekam Medis (Delete)
-    public function destroy(DetailRekamMedis $detailRekamMedis)
+    /**
+     * DELETE: Menghapus detail tindakan
+     */
+    public function destroy($id)
     {
-        $idrekam_medis = $detailRekamMedis->idrekam_medis;
-        $detailRekamMedis->delete();
+        DB::table('detail_rekam_medis')
+            ->where('iddetail_rekam_medis', $id)
+            ->delete();
 
-        return redirect()->route('dokter.rekam-medis.show', $idrekam_medis)
-            ->with('success', 'Detail tindakan/terapi berhasil dihapus.');
+        return redirect()->back()->with('success', 'Detail tindakan berhasil dihapus.');
     }
 }
