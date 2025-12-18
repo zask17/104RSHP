@@ -5,83 +5,82 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Mod\App\Models\RoleUser;
 use App\Models\Role;
+use App\Models\RoleUser;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-
     public function index()
     {
-        // Eager load relasi 'role' (yang belongsTo)
+        // Eager load 'role' menggunakan hasOneThrough yang sudah dibuat
         $users = User::with('role')->get(); 
         return view('admin.users.index', compact('users'));
-    }
-
-    public function create()
-    {
-        $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
-    }
-
-    public function store(Request $request)
-    {
-        // Validasi tanpa ID (create mode)
-        $validatedData = $this->validateUser($request);
-
-        // Jika Model User.php TIDAK memiliki mutator setPasswordAttribute($password)
-        // Maka Anda perlu melakukan hashing secara manual di sini:
-        // $validatedData['password'] = Hash::make($validatedData['password']);
-
-        User::create($validatedData);
-
-        return redirect()->route('admin.users.index')
-                         ->with('success', 'User berhasil ditambahkan.');
     }
 
     public function edit(User $user)
     {
         $roles = Role::all();
-        return view('admin.users.edit', compact('user', 'roles'));
+        // Ambil ID role saat ini dari tabel role_user
+        $currentRoleId = RoleUser::where('iduser', $user->iduser)->value('idrole');
+        return view('admin.users.edit', compact('user', 'roles', 'currentRoleId'));
     }
 
     public function update(Request $request, User $user)
     {
-        // Catatan: Menggunakan $user->id untuk Rule::unique, pastikan konsisten dengan primary key 'iduser'
-        $validatedData = $this->validateUser($request, $user->iduser); 
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => [
+                'required', 'email',
+                Rule::unique('user', 'email')->ignore($user->iduser, 'iduser'),
+            ],
+            'idrole' => 'required|exists:role,idrole',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
 
-        // Hanya update password jika diisi
-        if (isset($validatedData['password']) && !empty($validatedData['password'])) {
-            // Mutator di model akan melakukan hashing jika ada.
-            // Jika tidak ada, tambahkan: $validatedData['password'] = Hash::make($validatedData['password']);
-            $user->password = $validatedData['password']; 
-        } else {
-            unset($validatedData['password']);
+        // 1. Update data User
+        $user->nama = $request->nama;
+        $user->email = $request->email;
+        if ($request->filled('password')) {
+            $user->password = $request->password;
         }
-        
-        $user->update($validatedData);
+        $user->save();
 
-        return redirect()->route('admin.users.index')
-                         ->with('success', 'User berhasil diperbarui.');
+        // 2. Update atau Create data di tabel role_user
+        RoleUser::updateOrCreate(
+            ['iduser' => $user->iduser],
+            ['idrole' => $request->idrole, 'status' => 1]
+        );
+
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
     }
 
-    public function destroy(User $user)
+        public function destroy($id)
     {
-        // Pencegahan penghapusan diri sendiri
-        if (auth()->id() == $user->iduser) {
+        // Cari user berdasarkan primary key 'iduser'
+        $user = User::findOrFail($id);
+
+        // 1. Pencegahan: Jangan biarkan user menghapus akunnya sendiri yang sedang login
+        if (Auth::id() == $user->iduser) {
             return redirect()->route('admin.users.index')
-                             ->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+                             ->with('error', 'Gagal! Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan.');
         }
 
         try {
+            // 2. Hapus data di tabel perantara 'role_user' terlebih dahulu
+            // Ini untuk menghindari error constraint integritas database
+            RoleUser::where('iduser', $user->iduser)->delete();
+
+            // 3. Hapus data utama di tabel 'user'
             $user->delete();
+
             return redirect()->route('admin.users.index')
-                             ->with('success', 'User berhasil dihapus.');
+                             ->with('success', 'User ' . $user->nama . ' berhasil dihapus dari sistem.');
         } catch (\Exception $e) {
+            // Tangani jika ada error (misal user masih terikat dengan data rekam medis/pemilik)
             return redirect()->route('admin.users.index')
-                             ->with('error', 'Gagal menghapus user. Terjadi kesalahan sistem atau masih ada data terkait.');
+                             ->with('error', 'Gagal menghapus user. Data user ini mungkin masih terhubung dengan catatan rekam medis atau data lainnya.');
         }
     }
 
@@ -115,4 +114,5 @@ class UserController extends Controller
 
         return $request->validate($rules, $messages);
     }
+
 }

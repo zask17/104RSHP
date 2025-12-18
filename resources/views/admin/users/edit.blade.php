@@ -1,104 +1,51 @@
 @extends('layouts.app')
 
-@section('title', 'Edit User')
-
 @section('content')
 <div class="page-container">
     <div class="form-container">
-        <h1>Edit User: {{ $user->name }}</h1>
+        <h1>Edit User: {{ $user->nama }}</h1>
         
-        <a href="{{ route('admin.users.index') }}" class="back-link">
-            <i class="fas fa-arrow-left"></i> Kembali ke Daftar User
-        </a>
-
         <form action="{{ route('admin.users.update', $user->iduser) }}" method="POST">
             @csrf
-            @method('PUT') {{-- Gunakan metode PUT untuk update --}}
+            @method('PUT')
 
-            {{-- Nama --}}
             <div class="form-group">
-                <label for="name">Nama Lengkap <span class="text-danger">*</span></label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value="{{ old('name', $user->name) }}"
-                    placeholder="Masukkan nama lengkap"
-                    required
-                >
-                @error('name')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
+                <label>Nama Lengkap</label>
+                <input type="text" name="nama" value="{{ old('nama', $user->nama) }}" required>
             </div>
 
-            {{-- Email --}}
             <div class="form-group">
-                <label for="email">Email <span class="text-danger">*</span></label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value="{{ old('email', $user->email) }}"
-                    placeholder="Masukkan alamat email"
-                    required
-                >
-                @error('email')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
+                <label>Email</label>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
             </div>
 
-            {{-- Role --}}
             <div class="form-group">
-                <label for="idrole">Role/Jabatan <span class="text-danger">*</span></label>
-                <select id="idrole" name="idrole" required>
-                    <option value="">Pilih Role</option>
+                <label>Role/Jabatan</label>
+                <select name="idrole" required>
                     @foreach ($roles as $role)
-                        <option 
-                            value="{{ $role->idrole }}" 
-                            {{ old('idrole', $user->idrole) == $role->idrole ? 'selected' : '' }}
-                        >
+                        <option value="{{ $role->idrole }}" 
+                            {{ (old('idrole', $currentRoleId) == $role->idrole) ? 'selected' : '' }}>
                             {{ $role->nama_role }}
                         </option>
                     @endforeach
                 </select>
-                @error('idrole')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
             </div>
             
             <div class="info-box">
-                <h3>Ubah Password</h3>
-                <p>Kosongkan field di bawah jika Anda tidak ingin mengganti password user ini.</p>
+                <p>Kosongkan password jika tidak ingin mengganti.</p>
             </div>
 
-            {{-- Password --}}
             <div class="form-group">
-                <label for="password">Password Baru</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Minimal 8 karakter"
-                >
-                @error('password')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
+                <label>Password Baru</label>
+                <input type="password" name="password">
             </div>
 
-            {{-- Konfirmasi Password --}}
             <div class="form-group">
-                <label for="password_confirmation">Konfirmasi Password Baru</label>
-                <input
-                    type="password"
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    placeholder="Ulangi password baru"
-                >
+                <label>Konfirmasi Password</label>
+                <input type="password" name="password_confirmation">
             </div>
 
-            <button type="submit" class="btn-submit">
-                <i class="fas fa-save"></i> Perbarui User
-            </button>
+            <button type="submit" class="btn-submit">Simpan Perubahan</button>
         </form>
     </div>
 </div>

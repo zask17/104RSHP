@@ -52,14 +52,31 @@ class User extends Authenticatable
         }
     }
 
+    // /**
+    //  * Relasi belongsTo untuk Role (One-to-One / Foreign Key on User table)
+    //  */
+    // public function role() // MENGAKTIFKAN RELASI INI
+    // {
+    //     return $this->belongsTo(Role::class, 'idrole', 'idrole');
+    // }
+
     /**
-     * Relasi belongsTo untuk Role (One-to-One / Foreign Key on User table)
+     * PENTING: Gunakan hasOneThrough untuk mengambil Role tunggal 
+     * melalui tabel perantara role_user. Ini untuk tampilan daftar pengguna.
      */
-    public function role() // MENGAKTIFKAN RELASI INI
+    public function role()
     {
-        return $this->belongsTo(Role::class, 'idrole', 'idrole');
+        return $this->hasOneThrough(
+            Role::class,
+            RoleUser::class,
+            'iduser',   // Foreign key di tabel role_user
+            'idrole',   // Foreign key di tabel role
+            'iduser',   // Local key di tabel user
+            'idrole'    // Local key di tabel role_user
+        );
     }
 
+    
     /**
      * The roles that belong to the user. (Relasi Many-to-Many Anda yang lama)
      */
