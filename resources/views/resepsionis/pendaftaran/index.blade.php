@@ -20,7 +20,6 @@
                 </div>
             @endif
             
-            {{-- Tombol Tambah diarahkan ke create Pendaftaran --}}
             <a href="{{ route('resepsionis.pendaftaran.create') }}" class="add-btn">
                 <i class="fas fa-user-plus"></i> Registrasi Pasien Baru (Walk-in)
             </a>
@@ -56,20 +55,9 @@
                             <td>{{ $pendaftaran->pet->pemilik->nama_pemilik ?? 'N/A' }}</td>
                             <td>{{ $pendaftaran->roleUser->user->nama ?? 'N/A' }}</td>
                             <td class="action-buttons">
-                                {{-- Link Edit mengarah ke Edit Pendaftaran --}}
                                 <a href="{{ route('resepsionis.pendaftaran.edit', $pendaftaran->idreservasi_dokter) }}" class="edit-btn">
                                     <i class="fas fa-edit"></i> Kelola
                                 </a>
-                                {{-- Form Delete --}}
-                                <form action="{{ route('resepsionis.pendaftaran.destroy', $pendaftaran->idreservasi_dokter) }}" method="POST"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="delete-btn"
-                                        onclick="return confirm('Apakah Anda yakin ingin membatalkan pendaftaran ini?')">
-                                        <i class="fas fa-trash"></i> Hapus
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                     @empty

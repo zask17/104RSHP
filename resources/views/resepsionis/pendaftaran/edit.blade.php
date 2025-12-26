@@ -4,7 +4,7 @@
 <div class="page-container">
     <div class="form-container">
         <h1><i class="fas fa-edit"></i> Kelola Pendaftaran: {{ $pendaftaran->pet->nama ?? 'N/A' }}</h1>
-        <p>No. Urut: **{{ $pendaftaran->no_urut }}** | Waktu Registrasi: {{ \Carbon\Carbon::parse($pendaftaran->waktu_temu)->format('H:i') }} WIB</p>
+        <p>No. Urut: {{ $pendaftaran->no_urut }} | Waktu Registrasi: {{ \Carbon\Carbon::parse($pendaftaran->waktu_temu)->format('H:i') }} WIB</p>
         
         <a href="{{ route('resepsionis.pendaftaran.index') }}" class="back-link">
             <i class="fas fa-arrow-left"></i> Kembali ke Antrean Pendaftaran
