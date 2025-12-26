@@ -4,7 +4,7 @@
     <div class="page-container">
         <div class="page-header">
             <h1><i class="fas fa-calendar-check"></i> Manajemen Janji Temu Dokter</h1>
-            <p>Kelola daftar janji temu pasien dengan dokter.</p>
+            <p>Kelola daftar janji temu pasien untuk jadwal mendatang.</p>
         </div>
 
         <div class="main-content">
@@ -20,7 +20,6 @@
                 </div>
             @endif
 
-            {{-- Button Tambah --}}
             <a href="{{ route('resepsionis.temu-dokter.create') }}" class="add-btn">
                 <i class="fas fa-plus"></i> Buat Janji Temu Baru
             </a>
@@ -28,8 +27,7 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        {{-- <th>ID</th> --}}
-                        <th>No. Urut</th>
+                        <th>No.</th>
                         <th>Status</th>
                         <th>Pasien (Pet)</th>
                         <th>Pemilik</th>
@@ -39,14 +37,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- Pastikan TemuDokterController.php menggunakan 'temuDokters' untuk variabel ini --}}
                     @forelse ($temuDokters as $temu)
                         <tr>
-                            {{-- Menggunakan idreservasi_dokter sebagai primary key yang pasti ada --}}
-                            {{-- <td>{{ $temu->idreservasi_dokter }}</td>  --}}
-                            
                             <td>{{ $loop->iteration }}</td>
-                            
                             <td>
                                 @php
                                     $statusClass = '';
@@ -58,40 +51,25 @@
                                 <span class="status-badge {{ $statusClass }}">{{ $temu->status }}</span>
                             </td>
                             
+                            <td>{{ $temu->pet?->nama ?? 'N/A' }}</td> 
+                            <td>{{ $temu->pet?->pemilik?->nama_pemilik ?? 'N/A' }}</td>
+                            <td>{{ $temu->roleUser?->user?->nama ?? 'N/A' }}</td> 
                             
-                            {{-- FIX: Menggunakan operator Nullsafe (?->) dan kolom nama_pemilik --}}
-                            {{-- Pet Name --}}
-                            <td>{{ $temu->pet?->nama ?? 'Pasien Dihapus' }}</td> 
-                            
-                            {{-- Pemilik Name (Mengakses relasi berlapis) --}}
-                            <td>{{ $temu->pet?->pemilik?->nama_pemilik ?? 'Pemilik Dihapus' }}</td>
-                            
-                            {{-- Dokter Name (Mengakses relasi roleUser -> user) --}}
-                            <td>{{ $temu->roleUser?->user?->nama ?? 'Dokter Dihapus' }}</td> 
-                            
-                            <td>{{ \Carbon\Carbon::parse($temu->tanggal_temu . ' ' . $temu->waktu_temu)->format('d M Y H:i') }}</td>
+                            <td>
+                                <strong>{{ \Carbon\Carbon::parse($temu->tanggal_temu)->translatedFormat('d M Y') }}</strong><br>
+                                <small>{{ \Carbon\Carbon::parse($temu->waktu_temu)->format('H:i') }} WIB</small>
+                            </td>
                             
                             <td class="action-buttons">
-                                {{-- Button Edit --}}
                                 <a href="{{ route('resepsionis.temu-dokter.edit', $temu->idreservasi_dokter) }}" class="edit-btn">
-                                    <i class="fas fa-edit"></i> Edit
+                                    <i class="fas fa-edit"></i> Kelola
                                 </a>
-
-                                {{-- Form Delete --}}
-                                <form action="{{ route('resepsionis.temu-dokter.destroy', $temu->idreservasi_dokter) }}" method="POST"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="delete-btn"
-                                        onclick="return confirm('Apakah Anda yakin ingin membatalkan janji temu ini? Tindakan ini tidak dapat dibatalkan.')">
-                                        <i class="fas fa-trash"></i> Hapus
-                                    </button>
-                                </form>
+                                {{-- Tombol Hapus Dihilangkan Sesuai Permintaan --}}
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" style="text-align: center;">Tidak ada janji temu yang terdaftar.</td>
+                            <td colspan="7" style="text-align: center;">Tidak ada jadwal janji temu mendatang.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -109,6 +87,8 @@
         font-size: 0.8em;
         font-weight: bold;
         color: white;
+        min-width: 90px;
+        text-align: center;
     }
     .status-pending { background-color: #f39c12; }
     .status-confirmed { background-color: #2ecc71; }

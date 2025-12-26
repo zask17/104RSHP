@@ -150,13 +150,13 @@ class TemuDokterController extends Controller
     /**
      * Menghapus Temu Dokter dari database.
      */
-    public function destroy(TemuDokter $temuDokter)
-    {
-        try {
-            $temuDokter->delete();
-            return redirect()->route('resepsionis.temu-dokter.index')->with('success', 'Janji Temu berhasil dihapus!');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus Janji Temu: ' . $e->getMessage());
-        }
-    }
+    // public function destroy(TemuDokter $temuDokter)
+    // {
+    //     try {
+    //         $temuDokter->delete();
+    //         return redirect()->route('resepsionis.temu-dokter.index')->with('success', 'Janji Temu berhasil dihapus!');
+    //     } catch (\Exception $e) {
+    //         return back()->with('error', 'Gagal menghapus Janji Temu: ' . $e->getMessage());
+    //     }
+    // }
 }
