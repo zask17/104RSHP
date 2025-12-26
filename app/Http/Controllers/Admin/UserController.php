@@ -9,12 +9,13 @@ use App\Models\Role;
 use App\Models\RoleUser;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
     public function index()
     {
-        // Eager load 'role' menggunakan hasOneThrough yang sudah dibuat
+        // Sekarang User::with('role') akan berfungsi karena sudah didefinisikan di Model
         $users = User::with('role')->get(); 
         return view('admin.users.index', compact('users'));
     }
@@ -22,7 +23,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        // Ambil ID role saat ini dari tabel role_user
+        // Ambil ID role saat ini
         $currentRoleId = RoleUser::where('iduser', $user->iduser)->value('idrole');
         return view('admin.users.edit', compact('user', 'roles', 'currentRoleId'));
     }
@@ -39,80 +40,56 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        // 1. Update data User
-        $user->nama = $request->nama;
-        $user->email = $request->email;
-        if ($request->filled('password')) {
-            $user->password = $request->password;
+        try {
+            DB::beginTransaction();
+
+            // 1. Update data User
+            $user->nama = $request->nama;
+            $user->email = $request->email;
+            if ($request->filled('password')) {
+                $user->password = $request->password;
+            }
+            $user->save();
+
+            // 2. Update role di tabel role_user
+            RoleUser::updateOrCreate(
+                ['iduser' => $user->iduser],
+                ['idrole' => $request->idrole, 'status' => 1]
+            );
+
+            DB::commit();
+            return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-        $user->save();
-
-        // 2. Update atau Create data di tabel role_user
-        RoleUser::updateOrCreate(
-            ['iduser' => $user->iduser],
-            ['idrole' => $request->idrole, 'status' => 1]
-        );
-
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
     }
 
-        public function destroy($id)
+    public function destroy($id)
     {
-        // Cari user berdasarkan primary key 'iduser'
         $user = User::findOrFail($id);
 
-        // 1. Pencegahan: Jangan biarkan user menghapus akunnya sendiri yang sedang login
         if (Auth::id() == $user->iduser) {
             return redirect()->route('admin.users.index')
-                             ->with('error', 'Gagal! Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan.');
+                             ->with('error', 'Gagal! Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
         try {
-            // 2. Hapus data di tabel perantara 'role_user' terlebih dahulu
-            // Ini untuk menghindari error constraint integritas database
+            DB::beginTransaction();
+            
+            // Hapus relasi role terlebih dahulu
             RoleUser::where('iduser', $user->iduser)->delete();
-
-            // 3. Hapus data utama di tabel 'user'
+            
+            // Hapus user utama
             $user->delete();
 
+            DB::commit();
             return redirect()->route('admin.users.index')
-                             ->with('success', 'User ' . $user->nama . ' berhasil dihapus dari sistem.');
+                             ->with('success', 'User ' . $user->nama . ' berhasil dihapus.');
         } catch (\Exception $e) {
-            // Tangani jika ada error (misal user masih terikat dengan data rekam medis/pemilik)
+            DB::rollback();
             return redirect()->route('admin.users.index')
-                             ->with('error', 'Gagal menghapus user. Data user ini mungkin masih terhubung dengan catatan rekam medis atau data lainnya.');
+                             ->with('error', 'Gagal menghapus user. Data mungkin masih terhubung dengan rekam medis atau pemilik.');
         }
     }
-
-    private function validateUser(Request $request, $id = null)
-    {
-        $rules = [
-            'nama' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('user', 'email')->ignore($id, 'iduser'), // Menggunakan tabel 'user' dan primary key 'iduser'
-            ],
-            
-            'idrole' => 'required|exists:role,idrole', 
-            'password' => [
-                $id ? 'nullable' : 'required',
-                'string',
-                'min:8',
-                'confirmed',
-            ],
-        ];
-        $messages = [
-            'idrole.required' => 'Role pengguna harus dipilih.',
-            'idrole.exists' => 'Role pengguna yang dipilih tidak valid.',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'email.unique' => 'Email sudah terdaftar.',
-        ];
-
-        return $request->validate($rules, $messages);
-    }
-
 }

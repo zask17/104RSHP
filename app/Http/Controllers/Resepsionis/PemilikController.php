@@ -14,7 +14,7 @@ class PemilikController extends Controller
      */
     public function index()
     {
-        $pemiliks = Pemilik::orderBy('idpemilik', 'desc')->get();
+        $pemiliks = Pemilik::orderBy('idpemilik', 'asc')->get();
         return view('resepsionis.pemilik.index', compact('pemiliks'));
     }
 

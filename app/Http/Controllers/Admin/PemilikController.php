@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Pemilik;
 use App\Models\User;
 use App\Models\RoleUser;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PemilikController extends Controller
 {
-       public function index ()
+    public function index()
     {
-       $pemilik = Pemilik::all();
+        $pemilik = Pemilik::all();
         return view('admin.pemilik.index', compact('pemilik'));
     }
 
@@ -25,139 +25,119 @@ class PemilikController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi sekarang mencakup password jika ini adalah operasi store
-        $validatedData = $this->validatePemilik($request);
+        // Validasi input
+        $request->validate([
+            'nama_pemilik' => 'required|string|max:100',
+            'no_wa' => 'required|string|max:45',
+            'email' => 'nullable|email|unique:user,email|max:100',
+            'password' => 'required|min:6',
+            'alamat' => 'required|string|max:100',
+        ]);
 
         try {
-            // 1. Buat user baru untuk pemilik terlebih dahulu
+            DB::beginTransaction();
+
+            // 1. Buat User baru di tabel 'user'
             $user = User::create([
-                'nama' => $validatedData['nama_pemilik'],
-                'email' => $validatedData['email'] ?? null,
-                // Menggunakan password dari input user, bukan password default
-                'password' => bcrypt($validatedData['password']), 
+                'nama' => $request->nama_pemilik,
+                'email' => $request->email,
+                'password' => Hash::make($request->password), // Enkripsi password
             ]);
 
-            // 2. Buat data pemilik dengan iduser dari user yang baru dibuat
-            $pemilik = Pemilik::create([
-                'nama_pemilik' => $validatedData['nama_pemilik'],
-                'alamat' => $validatedData['alamat'],
-                'no_wa' => $validatedData['no_wa'],
-                'email' => $validatedData['email'] ?? null,
-                'iduser' => $user->iduser,
-            ]);
-
-            // 3. Assign role 'Pemilik' (idrole = 4, pastikan ada di database)
+            // 2. Hubungkan ke Role Pemilik (ID 5) di tabel 'role_user'
+            // Inilah bagian yang memastikan role-nya adalah PEMILIK, bukan Resepsionis
             RoleUser::create([
                 'iduser' => $user->iduser,
-                'idrole' => 4, // Asumsikan role pemilik memiliki idrole = 4
-                'status' => 1, // 1 = active, 0 = inactive
+                'idrole' => 5, // 5 = Pemilik berdasarkan SQL Anda
+                'status' => 1
             ]);
 
-            return redirect()->route('admin.pemilik.index')
-                             ->with('success', 'Data pemilik berhasil ditambahkan dan user account telah dibuat.');
+            // 3. Simpan detail informasi ke tabel 'pemilik'
+            Pemilik::create([
+                'nama_pemilik' => $request->nama_pemilik,
+                'no_wa' => $request->no_wa,
+                'email' => $request->email,
+                'alamat' => $request->alamat,
+                'iduser' => $user->iduser, // Hubungkan dengan iduser yang baru dibuat
+            ]);
+
+            DB::commit();
+            return redirect()->route('admin.pemilik.index')->with('success', 'Data pemilik berhasil ditambahkan dengan akses Role Pemilik.');
+
         } catch (\Exception $e) {
-            return redirect()->route('admin.pemilik.index')
-                             ->with('error', 'Gagal menambahkan data pemilik: ' . $e->getMessage());
+            DB::rollback();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
-    public function edit(Pemilik $pemilik)
+    public function edit($id)
     {
+        $pemilik = Pemilik::findOrFail($id);
         return view('admin.pemilik.edit', compact('pemilik'));
     }
 
-    public function update(Request $request, Pemilik $pemilik)
+    public function update(Request $request, $id)
     {
-        // Menggunakan ID model untuk mengabaikan unique check pada dirinya sendiri
-        $validatedData = $this->validatePemilik($request, $pemilik->idpemilik);
+        $pemilik = Pemilik::findOrFail($id);
+        
+        $request->validate([
+            'nama_pemilik' => 'required|string|max:100',
+            'no_wa' => 'required|string|max:45',
+            'email' => 'nullable|email|unique:user,email,' . $pemilik->iduser . ',iduser|max:100',
+            'alamat' => 'required|string|max:100',
+        ]);
 
         try {
-            // Update data pemilik
-            $pemilik->update($validatedData);
+            DB::beginTransaction();
 
-            // Update data user jika ada
-            if ($pemilik->iduser) {
-                $user = User::find($pemilik->iduser);
-                if ($user) {
-                    $user->update([
-                        'nama' => $validatedData['nama_pemilik'],
-                        'email' => $validatedData['email'] ?? null,
-                    ]);
-                }
-            }
+            // Update User terkait
+            $user = User::findOrFail($pemilik->iduser);
+            $user->update([
+                'nama' => $request->nama_pemilik,
+                'email' => $request->email,
+            ]);
 
-            return redirect()->route('admin.pemilik.index')
-                             ->with('success', 'Data pemilik berhasil diperbarui.');
+            // Update data Pemilik
+            $pemilik->update([
+                'nama_pemilik' => $request->nama_pemilik,
+                'no_wa' => $request->no_wa,
+                'email' => $request->email,
+                'alamat' => $request->alamat,
+            ]);
+
+            DB::commit();
+            return redirect()->route('admin.pemilik.index')->with('success', 'Data pemilik berhasil diperbarui.');
+
         } catch (\Exception $e) {
-            return redirect()->route('admin.pemilik.index')
-                             ->with('error', 'Gagal memperbarui data pemilik: ' . $e->getMessage());
+            DB::rollback();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
-    public function destroy(Pemilik $pemilik)
+    public function destroy($id)
     {
-        // Pengecekan relasi dengan data hewan peliharaan
-        if ($pemilik->pets()->count() > 0) {
-            return redirect()->route('admin.pemilik.index')
-                             ->with('error', 'Gagal menghapus pemilik karena masih memiliki data hewan peliharaan yang terdaftar.');
-        }
+        $pemilik = Pemilik::findOrFail($id);
+        
         try {
+            DB::beginTransaction();
+            
             $userId = $pemilik->iduser;
             
             // Hapus data pemilik
             $pemilik->delete();
+            
+            // Hapus relasi role
+            RoleUser::where('iduser', $userId)->delete();
+            
+            // Hapus user
+            User::where('iduser', $userId)->delete();
 
-            // Hapus user dan role_user jika ada
-            if ($userId) {
-                RoleUser::where('iduser', $userId)->delete();
-                User::destroy($userId);
-            }
+            DB::commit();
+            return redirect()->route('admin.pemilik.index')->with('success', 'Data pemilik dan akun user berhasil dihapus.');
 
-            return redirect()->route('admin.pemilik.index')
-                             ->with('success', 'Data pemilik dan user account berhasil dihapus.');
         } catch (\Exception $e) {
-            return redirect()->route('admin.pemilik.index')
-                             ->with('error', 'Gagal menghapus pemilik. Terjadi kesalahan sistem.');
+            DB::rollback();
+            return back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
-    }
-
-    private function validatePemilik(Request $request, $id = null)
-    {
-        $rules = [
-            'nama_pemilik' => 'required|string|max:255|min:3',
-            'alamat' => 'required|string|max:500',
-            'no_wa' => [
-                'required',
-                'string',
-                'max:15',
-                Rule::unique('pemilik', 'no_wa')->ignore($id, 'idpemilik'),
-            ],
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-                // Rule::unique('pemilik', 'email') tidak mencukupi, perlu ditambahkan rule unique untuk tabel user jika diperlukan validasi yang lebih ketat.
-                Rule::unique('pemilik', 'email')->ignore($id, 'idpemilik'), 
-            ],
-            'iduser' => 'nullable|integer|exists:users,iduser',
-        ];
-
-        $messages = [
-            'nama_pemilik.required' => 'Nama pemilik tidak boleh kosong.',
-            'alamat.required' => 'Alamat tidak boleh kosong.',
-            'no_wa.required' => 'Nomor HP tidak boleh kosong.',
-            'no_wa.unique' => 'Nomor HP sudah terdaftar.',
-            'email.email' => 'Format email tidak valid.',
-            'email.unique' => 'Email sudah terdaftar.',
-        ];
-
-        // Tambahkan aturan validasi password hanya untuk operasi store (ketika $id = null)
-        if ($id === null) {
-            $rules['password'] = 'required|string|min:6';
-            $messages['password.required'] = 'Password tidak boleh kosong.';
-            $messages['password.min'] = 'Password minimal 6 karakter.';
-        }
-
-        return $request->validate($rules, $messages);
     }
 }
