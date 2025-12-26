@@ -17,6 +17,7 @@
         <div class="dashboard-card">
             <h3>Profil Saya</h3>
             <p style="text-align: left; margin-left: 20px;">
+                <strong>Nama:</strong> {{ $dataPemilik->nama_pemilik}}<br>
                 <strong>WhatsApp:</strong> {{ $dataPemilik->no_wa }}<br>
                 <strong>Email:</strong> {{ $dataPemilik->email }}<br>
                 <strong>Alamat:</strong> {{ $dataPemilik->alamat }}
